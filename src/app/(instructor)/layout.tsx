@@ -13,7 +13,7 @@ const layout = ({ children }: Props) => {
 
         </div>
 
-       <div className="flex-1 md:pl-70 overflow-y-auto bg-gray-950 text-white p-6">
+       <div className="flex-1 md:pl-70 overflow-y-auto  text-white p-6">
         {children}
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, BookOpen, User, Search, Download, FileText } from "lucide-react";
+import { Home, BookOpen, User, Search, Download, FileText, Gauge } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,6 +20,12 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { name: "Certificates", path: "/certificates", icon: Download },
     { name: "Profile", path: "/profile/1", icon: User },
   ];
+  const adminNavItems = [
+    { name: "Home", path: "/", icon: Home },
+    { name: "Dashboard", path: "/admin/dashboard", icon: Gauge },
+    { name: "User Management", path: "/admin/user-management", icon: User },
+    { name: "Course Moderation", path: "/admin/course-moderation", icon: Search },
+  ];
   const instructorNavItems = [
     { name: "Home", path: "/", icon: Home },
     { name: "Dashboard", path: "/instructor/dashboard", icon: BookOpen },
@@ -31,8 +37,9 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
         return studentNavItems;
       case "instructor":{
         return instructorNavItems;
-
       }
+        case "admin":
+        return adminNavItems;
       default:
         return studentNavItems;
     }
