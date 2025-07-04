@@ -9,7 +9,7 @@ const layout = ({ children }: Props) => {
     <>
      <div className="  flex h-full w-full">
         <div >
-       <Sidebar  userRole="student" />
+       <Sidebar  userRole="instructor" />
 
         </div>
 

@@ -32,7 +32,7 @@ const CourseCard = ({
   const router = useRouter();
 
   const handleCourseAction = () => {
-    router.push(`/course/${id}`);
+    router.push(`/courses/${id}`);
   };
 
   return (

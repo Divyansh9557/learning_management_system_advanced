@@ -80,16 +80,17 @@ const InstructorDashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">Courses & Assessments</h1>
-            <p className="text-gray-400">Manage your courses and track student progress with interactive content</p>
+            <p className="text-gray-400">
+              Manage your courses and track student progress with interactive
+              content
+            </p>
           </div>
-          <Link href={'/course/basic-info'} >
-          <Button 
-            className="bg-blue-600 hover:bg-blue-700"
-            >
-            <Book className="w-4 h-4 mr-2" />
-            Create New Course  
-          </Button>
-              </Link>
+          <Link href={"/instructor/course/create"}>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Book className="w-4 h-4 mr-2" />
+              Create New Course
+            </Button>
+          </Link>
         </div>
 
         {/* Metrics Cards */}
@@ -101,7 +102,9 @@ const InstructorDashboard = () => {
                   <div>
                     <p className="text-gray-400 text-sm mb-1">{metric.title}</p>
                     <p className="text-2xl font-bold">{metric.value}</p>
-                    <p className="text-gray-500 text-xs mt-1">{metric.description}</p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {metric.description}
+                    </p>
                   </div>
                   <div className={`p-3 rounded-lg ${metric.color}`}>
                     <metric.icon className="w-6 h-6 text-white" />
@@ -115,27 +118,36 @@ const InstructorDashboard = () => {
         {/* Course Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <Card key={course.id} className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors">
+            <Card
+              key={course.id}
+              className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors"
+            >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`p-2 rounded-lg ${course.color}`}>
                     <Book className="w-5 h-5 text-white" />
                   </div>
-                  <Badge 
+                  <Badge
                     className={`${
-                      course.status === 'Published' 
-                        ? 'bg-green-900 text-green-300 border-green-700' 
-                        : 'bg-gray-800 text-gray-400 border-gray-600'
+                      course.status === "Published"
+                        ? "bg-green-900 text-green-300 border-green-700"
+                        : "bg-gray-800 text-gray-400 border-gray-600"
                     }`}
                   >
                     {course.status}
                   </Badge>
                 </div>
 
-                <h3 className="text-lg font-semibold mb-2 text-white">{course.title}</h3>
-                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{course.description}</p>
-                
-                <div className="text-blue-400 text-sm font-medium mb-4">{course.category}</div>
+                <h3 className="text-lg font-semibold mb-2 text-white">
+                  {course.title}
+                </h3>
+                <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                  {course.description}
+                </p>
+
+                <div className="text-blue-400 text-sm font-medium mb-4">
+                  {course.category}
+                </div>
 
                 <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                   <div className="flex items-center gap-1">
@@ -149,24 +161,33 @@ const InstructorDashboard = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Badge 
+                  <Badge
                     className={`${
-                      course.difficulty === 'Beginner' ? 'bg-green-900 text-green-300 border-green-700' :
-                      course.difficulty === 'Intermediate' ? 'bg-orange-900 text-orange-300 border-orange-700' :
-                      'bg-red-900 text-red-300 border-red-700'
+                      course.difficulty === "Beginner"
+                        ? "bg-green-900 text-green-300 border-green-700"
+                        : course.difficulty === "Intermediate"
+                        ? "bg-orange-900 text-orange-300 border-orange-700"
+                        : "bg-red-900 text-red-300 border-red-700"
                     }`}
                   >
                     {course.difficulty}
                   </Badge>
-                  <Button 
-                    className={`${
-                      course.status === 'Published' 
-                        ? 'bg-green-600 hover:bg-green-700' 
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                  >
-                    {course.status === 'Published' ? 'View Course' : 'Continue Setup'}
-                  </Button>
+                  {
+                    course.status === "Published" ? (
+                      <Badge
+                        className="bg-blue-600 text-white border-blue-600"
+                      >
+                        Published
+                      </Badge>
+                    ) : (
+                      <Link href={'/instructor/lecture/21'} >
+                      <Button
+                        className="bg-gray-600 text-white border-gray-600"
+                        >
+                        continue setup
+                      </Button>
+                        </Link>
+                    )}
                 </div>
               </CardContent>
             </Card>

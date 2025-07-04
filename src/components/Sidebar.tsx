@@ -8,7 +8,7 @@ interface SidebarProps {
   userRole?: "student" | "instructor" | "admin";
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ userRole = "student" }) => {
+const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const pathname = usePathname();
 
   const studentNavItems = [
@@ -20,11 +20,19 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole = "student" }) => {
     { name: "Certificates", path: "/certificates", icon: Download },
     { name: "Profile", path: "/profile/1", icon: User },
   ];
+  const instructorNavItems = [
+    { name: "Home", path: "/", icon: Home },
+    { name: "Dashboard", path: "/instructor/dashboard", icon: BookOpen },
+  ];
 
   const getNavItems = () => {
     switch (userRole) {
       case "student":
         return studentNavItems;
+      case "instructor":{
+        return instructorNavItems;
+
+      }
       default:
         return studentNavItems;
     }
