@@ -163,7 +163,7 @@ const QuizesPage: React.FC = () => {
                 </div>
               </div>
 
-              <Link href={`/quizzes/${quiz.id}`} legacyBehavior>
+              <Link href={`/quizzes/${quiz.id}`} >
                 <button
                   disabled={quiz.status === 'locked'}
                   className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
