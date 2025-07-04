@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import PublishPage from "@/modules/Instructor/Publish/PublishPage"
+import PublishPage from "@/modules/Instructor/ui/Publish/PublishPage"
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

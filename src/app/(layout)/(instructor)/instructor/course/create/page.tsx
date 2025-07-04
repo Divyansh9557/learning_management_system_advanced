@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import CourseCreate from "@/modules/Instructor/CourseCreate/CourseCreate";
+import CourseCreate from "@/modules/Instructor/ui/CourseCreate/CourseCreate";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

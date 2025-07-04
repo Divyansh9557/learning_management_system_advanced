@@ -1,6 +1,6 @@
 
 import { auth } from "@/lib/auth";
-import LecturePage from "@/modules/Instructor/Lecture/LecturePage"
+import LecturePage from "@/modules/Instructor/ui/Lecture/LecturePage"
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

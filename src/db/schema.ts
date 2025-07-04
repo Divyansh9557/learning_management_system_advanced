@@ -1,6 +1,12 @@
 
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable,  text,  timestamp, integer, decimal, jsonb, boolean, pgEnum } from "drizzle-orm/pg-core";
+import {nanoid} from "nanoid"
 
+export const userStatus = pgEnum("status", ["active", "banned", "pending"]);
+export const courseStatus = pgEnum("course_status", ["draft", "published", "pending_approval", "rejected"]);
+export const difficulty = pgEnum("difficulty", ["beginner", "intermediate", "advanced"]);
+export const lessonType = pgEnum("lesson_type", ["video", "pdf", "external", "quiz"]);
+export const progressStatus = pgEnum("progress_status", ["not_started", "in_progress", "completed"]);
 
 
 export const user = pgTable("user", {
@@ -63,4 +69,70 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
+});
+
+
+export const courses = pgTable("courses", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  title: text("title").notNull(),
+  description: text("description"),
+  thumbnailUrl: text("thumbnail_url"),
+  price: decimal("price").default('0'),
+  difficulty: difficulty("difficulty"),
+  category: text("category"),
+  instructorId: text("instructor_id").references(() => user.id),
+  status: courseStatus("status").default("draft"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+
+
+export const lessons = pgTable("lessons", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  courseId: text("course_id").references(() => courses.id,{onDelete:"cascade"}),
+  title: text("title").notNull(),
+  videoUrl: text("video_url"),
+  duration: integer("duration"),
+  type: lessonType("type")
+});
+
+export const quizzes = pgTable("quizzes", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  lessonId: text("lesson_id").references(() => lessons.id),
+  title: text("title"),
+  description: text("description")
+});
+
+export const questions = pgTable("questions", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  quizId: text("quiz_id").references(() => quizzes.id,{onDelete:"cascade"}),
+  questionText: text("question_text").notNull(),
+  options: jsonb("options"),
+  correctAnswer: text("correct_answer")
+});
+
+export const enrollments = pgTable("enrollments", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
+  courseId: text("course_id").references(() => courses.id,{onDelete:"cascade"}),
+  progress: decimal("progress").default("0"),
+  completed: boolean("completed").default(false),
+  certificateUrl: text("certificate_url"),
+  enrolledAt: timestamp("enrolled_at").defaultNow()
+});
+
+export const progressTracker = pgTable("progress_tracker", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
+  lessonId: text("lesson_id").references(() => lessons.id,{onDelete:"cascade"}),
+  status: progressStatus("status").default("not_started"),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const certificates = pgTable("certificates", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
+  courseId: text("course_id").references(() => courses.id),
+  certificateUrl: text("certificate_url"),
+  issuedAt: timestamp("issued_at").defaultNow()
 });

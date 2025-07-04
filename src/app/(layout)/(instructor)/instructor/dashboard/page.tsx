@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import InstructorDashboard from "@/modules/Instructor/Dashboard/InstructorDashboard"
+import InstructorDashboard from "@/modules/Instructor/ui/Dashboard/InstructorDashboard"
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

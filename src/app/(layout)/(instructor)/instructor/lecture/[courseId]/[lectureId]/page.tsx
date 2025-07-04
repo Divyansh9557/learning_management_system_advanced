@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import CreateLecture from "@/modules/Instructor/Lecture/CreateLecture"
+import CreateLecture from "@/modules/Instructor/ui/Lecture/CreateLecture"
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
