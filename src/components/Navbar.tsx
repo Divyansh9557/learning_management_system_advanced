@@ -1,12 +1,19 @@
-
-import React from 'react';
-import { Search, Bell, User} from 'lucide-react';
+'use client'
+ 
+import { Search, Bell} from 'lucide-react';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
 
 
 
 
 const Navbar= () => {
+
+  
+  const {data} = authClient.useSession()
+
 
 
   return (
@@ -58,12 +65,13 @@ const Navbar= () => {
           </button>
 
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-rose-500 rounded-full flex items-center justify-center">
-              <User size={16} className="text-white" />
-            </div>
+            <Avatar>
+             <AvatarImage src={data?.user.image || "https://github.com/shadcn.png" } />
+             <AvatarFallback>CN</AvatarFallback>
+               </Avatar> 
             <div className="hidden lg:block">
-              <div className="text-sm font-medium text-white">John Doe</div>
-              <div className="text-xs text-white/40 capitalize">{"user"}</div>
+              <div className="text-sm font-medium text-white">{data?.user.name || "guest"}</div>
+              <div className="text-xs text-white/40 capitalize">{data?.roles?.[0]?.role || ""}</div>
             </div>
           </div>
         </div>
