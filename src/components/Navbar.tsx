@@ -14,6 +14,18 @@ const Navbar= () => {
   
   const {data} = authClient.useSession()
 
+   const redirectUrl = ()=>{
+      if(data?.roles[0].role==='student'){
+        return "/dashboard"
+      }
+      else if(data?.roles[0].role==="instructor"){
+        return "/instructor/dashboard"
+      }
+      else{
+        return "/admin/dashboard"
+      }
+   }
+
 
 
   return (
@@ -52,7 +64,11 @@ const Navbar= () => {
           </div>
 
           <div className='text-white mx-3 ' >
-              <Link href={'/dashboard'} >Dashboard</Link>
+            {
+              !data?.user? "":(
+                <Link href={redirectUrl()} >Dashboard</Link>
+              )
+            }
           </div>
 
          

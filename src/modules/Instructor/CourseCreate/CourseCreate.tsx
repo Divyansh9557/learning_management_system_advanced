@@ -13,15 +13,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadOnCloudinary } from "@/lib/uploadOnCloudinary";
-import { useMutation } from "@tanstack/react-query";
+import { uploadOnCloudinary } from "@/actions/uploadOnCloudinary";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 
-// 🧠 Zod schema with difficulty
+// 🧠 Zod schema with price
 const courseSchema = z.object({
   title: z.string().min(1, "Course title is required"),
   category: z.string().min(1, "Please select a category"),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+      message: "Price must be a valid non-negative number",
+    }),
   description: z.string().min(1, "Description is required"),
   thumbnailUrl: z
     .any()
@@ -37,19 +43,23 @@ type CourseFormData = z.infer<typeof courseSchema>;
 const CourseCreate = () => {
   const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading,setIsLoading]= useState(false)
-  const trpc = useTRPC()
+  const [loading, setIsLoading] = useState(false);
 
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const { mutate } = useMutation(
     trpc.course.create.mutationOptions({
-      onSuccess: (data:any) => {
+      onSuccess: (data: any) => {
+        setIsLoading(false);
+        queryClient.invalidateQueries(
+          trpc.course.getManyInstructor.queryOptions()
+        );
         router.push(`/instructor/lecture/${data.id}`);
-        setIsLoading(false)
       },
       onError: (error) => {
         console.error("Error creating course:", error);
-        setIsLoading(false)
+        setIsLoading(false);
       },
     })
   );
@@ -63,14 +73,23 @@ const CourseCreate = () => {
     resolver: zodResolver(courseSchema),
   });
 
-  const onSubmit = async(data: CourseFormData) => {
-    setIsLoading(true)
+  const onSubmit = async (data: CourseFormData) => {
+    setIsLoading(true);
+
     const formData = new FormData();
     formData.append("thumbnail", data.thumbnailUrl[0]);
-    const response = await uploadOnCloudinary(formData) as any
-   
-    const {category,description,difficulty,title} =data
-    mutate({category,description,difficulty,title,thumbnailUrl:response.secure_url})
+
+    const response = await uploadOnCloudinary(formData) as any;
+
+    const { category, description, difficulty, title, price } = data;
+    mutate({
+      title,
+      category,
+      difficulty,
+      description,
+      price: Number(price),
+      thumbnailUrl: response.secure_url,
+    });
   };
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +105,9 @@ const CourseCreate = () => {
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="mb-10">
           <h1 className="text-3xl font-bold mb-2">Course Title & Description</h1>
-          <p className="text-gray-400">Set your course name, category, and detailed description</p>
+          <p className="text-gray-400">
+            Set your course name, category, and detailed description
+          </p>
         </div>
 
         <Card className="bg-[#111112] border border-gray-800 text-white shadow-md">
@@ -121,7 +142,9 @@ const CourseCreate = () => {
                   <option>Business</option>
                   <option>Marketing</option>
                 </select>
-                {errors.category && <p className="text-red-500 text-sm">{errors.category.message}</p>}
+                {errors.category && (
+                  <p className="text-red-500 text-sm">{errors.category.message}</p>
+                )}
               </div>
 
               {/* Difficulty */}
@@ -133,11 +156,26 @@ const CourseCreate = () => {
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white"
                 >
                   <option value="">Select Difficulty</option>
-                  <option>beginner</option>
-                  <option>intermediate</option>
-                  <option>advanced</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
                 </select>
-                {errors.difficulty && <p className="text-red-500 text-sm">{errors.difficulty.message}</p>}
+                {errors.difficulty && (
+                  <p className="text-red-500 text-sm">{errors.difficulty.message}</p>
+                )}
+              </div>
+
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="price">Course Price (in ₹)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="Enter price (e.g., 499)"
+                  className="bg-gray-800 border border-gray-700 text-white"
+                  {...register("price")}
+                />
+                {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
               </div>
 
               {/* Description */}
@@ -150,7 +188,9 @@ const CourseCreate = () => {
                   className="bg-gray-800 border border-gray-700 text-white placeholder:text-gray-400"
                   {...register("description")}
                 />
-                {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+                {errors.description && (
+                  <p className="text-red-500 text-sm">{errors.description.message}</p>
+                )}
               </div>
 
               {/* Thumbnail */}
@@ -190,9 +230,7 @@ const CourseCreate = () => {
                   Back to Dashboard
                 </Button>
                 <Button disabled={loading} type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  {
-                    loading?"Uploading":"Upload"
-                  }
+                  {loading ? "Uploading..." : "Upload Course"}
                 </Button>
               </div>
             </form>

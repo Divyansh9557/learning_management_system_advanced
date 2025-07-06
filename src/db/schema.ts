@@ -1,5 +1,5 @@
 
-import { pgTable,  text,  timestamp, integer, decimal, jsonb, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable,  text,  timestamp, integer, decimal, boolean, pgEnum } from "drizzle-orm/pg-core";
 import {nanoid} from "nanoid"
 
 export const userStatus = pgEnum("status", ["active", "banned", "pending"]);
@@ -73,16 +73,18 @@ export const verification = pgTable("verification", {
 
 
 export const courses = pgTable("courses", {
-  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
   title: text("title").notNull(),
   description: text("description"),
   thumbnailUrl: text("thumbnail_url"),
-  price: decimal("price").default('0'),
+  price: integer("price").default(0),
   difficulty: difficulty("difficulty"),
   category: text("category"),
   instructorId: text("instructor_id").references(() => user.id),
   status: courseStatus("status").default("draft"),
-  createdAt: timestamp("created_at").defaultNow()
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 
@@ -93,22 +95,16 @@ export const lessons = pgTable("lessons", {
   title: text("title").notNull(),
   videoUrl: text("video_url"),
   duration: integer("duration"),
-  type: lessonType("type")
+  type: lessonType("type").default("video")
 });
 
 export const quizzes = pgTable("quizzes", {
   id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
-  lessonId: text("lesson_id").references(() => lessons.id),
+  creater: text("creater").references(() => user.id,{onDelete:"cascade"}),
+  timeLimit:integer("time_limit").default(10),
+  questions:text("questions"),
   title: text("title"),
   description: text("description")
-});
-
-export const questions = pgTable("questions", {
-  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
-  quizId: text("quiz_id").references(() => quizzes.id,{onDelete:"cascade"}),
-  questionText: text("question_text").notNull(),
-  options: jsonb("options"),
-  correctAnswer: text("correct_answer")
 });
 
 export const enrollments = pgTable("enrollments", {
@@ -135,4 +131,10 @@ export const certificates = pgTable("certificates", {
   courseId: text("course_id").references(() => courses.id),
   certificateUrl: text("certificate_url"),
   issuedAt: timestamp("issued_at").defaultNow()
+});
+
+export const quizzesAttempted = pgTable("attempted_quizzes", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  userId: text("user").references(() => user.id,{onDelete:"cascade"}),
+  quizId: text("quiz_id").references(() => quizzes.id,{onDelete:"cascade"}),
 });

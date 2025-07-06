@@ -1,7 +1,11 @@
 import { auth } from "@/lib/auth";
-import InstructorDashboard from "@/modules/Instructor/ui/Dashboard/InstructorDashboard"
+import InstructorDashboard from "@/modules/Instructor/Dashboard/InstructorDashboard"
+import InstructorDashboardSkeleton from "@/modules/Instructor/Dashboard/InstructorDashboardSkeleton";
+import { getQueryClient, trpc } from "@/trpc/server";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 
 
@@ -16,8 +20,19 @@ const page = async() => {
     if (!session?.user || !allowedRoles  ) {
       redirect('/sign-in')
     }
+
+
+    const queryClient =  getQueryClient()
+    void queryClient.prefetchQuery(
+      trpc.course.getManyInstructor.queryOptions()
+    )
+
   return (
-    <InstructorDashboard/>
+    <HydrationBoundary state={dehydrate(queryClient)} >
+      <Suspense fallback={<InstructorDashboardSkeleton/>}>
+       <InstructorDashboard/>
+      </Suspense>
+    </HydrationBoundary>
   )
 }
 

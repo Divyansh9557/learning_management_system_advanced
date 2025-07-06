@@ -201,3 +201,20 @@
   }
 }
 
+@layer utilities {
+  .animate-loader-bar {
+    animation: loaderSlide 2s linear infinite;
+    background-image: linear-gradient(to right, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+    background-size: 200% auto;
+  }
+
+  @keyframes loaderSlide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+

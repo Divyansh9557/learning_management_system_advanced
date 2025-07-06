@@ -1,10 +1,21 @@
 
 import { auth } from "@/lib/auth";
-import LecturePage from "@/modules/Instructor/ui/Lecture/LecturePage"
+import LecturePage from "@/modules/Instructor/Lecture/LecturePage"
+import { LectureSkeleton } from "@/modules/Instructor/Lecture/LecturePageSkeleton";
+import { getQueryClient, trpc } from "@/trpc/server";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
-const page = async() => {
+
+interface Props {
+  params:Promise<{courseId:string}>
+}
+
+
+const page = async({params}:Props) => {
+  const {courseId} = await params
    const session = await auth.api.getSession({
           headers:await headers()
         })
@@ -16,8 +27,19 @@ const page = async() => {
       if (!session?.user || !allowedRoles  ) {
         redirect('/sign-in')
       }
+
+    const queryClient = getQueryClient()
+    void queryClient.prefetchQuery(
+      trpc.lecture.get.queryOptions({courseId})
+    )
+
   return (
-   <LecturePage/>
+    <HydrationBoundary state={dehydrate(queryClient)} >
+      <Suspense fallback={<LectureSkeleton/>} >
+     <LecturePage courseId={courseId} />
+
+      </Suspense>
+    </HydrationBoundary>
   )
 }
 

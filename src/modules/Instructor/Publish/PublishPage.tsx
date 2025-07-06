@@ -4,10 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, Eye, Users, Star } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 
 const PublishPage = () => {
+  const { courseId } = useParams() as { courseId: string }
   const router= useRouter()
   const [agreed, setAgreed] = useState(false);
 
@@ -16,16 +19,43 @@ const PublishPage = () => {
     router.push('/instructor/dashboard');
   };
 
+  const trpc = useTRPC()
+
+  const {data} = useSuspenseQuery(
+    trpc.course.getOne.queryOptions({courseId})
+  )
+   
+  console.log(data)
   const handlePrev = () => {
     router.back()
   };
+
+
+  const duration = data?.reduce((acc,data)=>{
+     if(data.lecture.duration){
+      return acc + data.lecture.duration
+     } else {
+       return acc + 0
+     }
+  } ,0)
+
+  function formatSecondsToTime(totalSeconds:number) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  // Pad with zeros for HH:MM:SS
+  const pad = (num: number) => String(num).padStart(2, '0');
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white">
       <div className="max-w-4xl mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Review & Publish</h1>
-          <p className="text-gray-400">Review your course details and publish when ready</p>
+          <h1 className="text-3xl text-white font-bold mb-2">Review & Publish</h1>
+          <p className="text-white">Review your course details and publish when ready</p>
         </div>
 
         <div className="grid gap-6">
@@ -35,10 +65,9 @@ const PublishPage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-gray-800 p-6 rounded-lg">
-                <h3 className="text-xl font-semibold mb-4">React Fundamentals Course</h3>
-                <p className="text-gray-400 mb-4">
-                  Learn the basics of React development including components, state management, and hooks.
-                  This comprehensive course will take you from beginner to intermediate level.
+                <h3 className="text-xl text-white font-semibold mb-4">{data[0].course.title}</h3>
+                <p className="text-white mb-4">
+                  {data[0].course.description}
                 </p>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -60,10 +89,10 @@ const PublishPage = () => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-700 pt-4">
-                  <h4 className="font-semibold mb-2">Course Includes:</h4>
-                  <ul className="text-sm text-gray-400 space-y-1">
-                    <li>• 12 video lessons (3.5 hours total)</li>
+                <div className="border-t text-white border-gray-700 pt-4">
+                  <h4 className="font-semibold  mb-2">Course Includes:</h4>
+                  <ul className="text-sm text-white  space-y-1">
+                    <li>• {data.length} video lessons ({formatSecondsToTime(duration)} hours total)</li>
                     <li>• Downloadable resources</li>
                     <li>• Certificate of completion</li>
                     <li>• Lifetime access</li>
@@ -71,7 +100,7 @@ const PublishPage = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-800 p-4 rounded">
+              <div className="bg-gray-800 text-white p-4 rounded">
                 <h4 className="font-semibold mb-2">Publish Checklist</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -97,7 +126,7 @@ const PublishPage = () => {
                   onChange={(e) => setAgreed(e.target.checked)}
                   className="rounded" 
                 />
-                <Label htmlFor="terms" className="text-sm">
+                <Label  htmlFor="terms" className=" text-white text-sm">
                   I agree to the terms and conditions and course publishing guidelines
                 </Label>
               </div>
