@@ -18,10 +18,10 @@ const page = async({params}:Props) => {
     })
   
    const allowedRoles = ["student", "admin", "instructor"].some((item)=> item===session?.roles[0].role );
-
+   const contentAccess = session?.enrolledCourses.some((allowedCourse)=> allowedCourse===courseId )
     
 
-  if (!session?.user || !allowedRoles  ) {
+  if (!session?.user || !allowedRoles || !contentAccess  ) {
     redirect('/sign-in')
   }
 

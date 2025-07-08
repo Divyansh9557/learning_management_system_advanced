@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import CourseCardSkeleton from "@/modules/User/Browse/BrowsePageSkeleton";
 import CoursePage from "@/modules/User/Course/CoursePage"
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -12,7 +13,7 @@ const page = async() => {
   const queryClient = getQueryClient()
 
   void queryClient.prefetchQuery(
-    trpc.course.getMany.queryOptions()
+    trpc.course.getPurchasedCourses.queryOptions()
   )
 
    const session = await auth.api.getSession({
@@ -28,7 +29,7 @@ const page = async() => {
   }
   return (
     <HydrationBoundary state={dehydrate(queryClient)} >
-      <Suspense fallback={<p>Loading...</p>} >
+      <Suspense fallback={<CourseCardSkeleton/>} >
       <CoursePage/>
       </Suspense>
 

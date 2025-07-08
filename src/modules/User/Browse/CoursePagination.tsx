@@ -19,7 +19,7 @@ export const CoursePagination = ({totalPage,limit=6}:Props) => {
     disabled={filter.page === 1}
     onClick={() => setFilter((val) => ({ ...val, page: val.page - 1 }))}
     className={`min-w-[100px] ${
-      filter.page === 1 ? 'opacity-50 cursor-not-allowed text-black ' : 'text-black  '
+      filter.page === 1 ? 'opacity-50 cursor-not-allowed ' : ''
     }`}
   >
     Previous
@@ -49,7 +49,7 @@ export const CoursePagination = ({totalPage,limit=6}:Props) => {
     variant="outline"
     disabled={filter.page >= Math.ceil(totalPage/limit) }
     onClick={() => setFilter((val) => ({ ...val, page: val.page + 1 }))}
-    className="min-w-[100px] text-black hover:bg-white/80 "
+className="bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-2 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
   >
     Next
   </Button>

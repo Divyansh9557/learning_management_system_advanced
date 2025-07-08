@@ -1,8 +1,8 @@
 import { deleteFromCloudinary } from "@/actions/uploadOnCloudinary";
 import { db } from "@/db";
-import { lessons } from "@/db/schema";
+import { enrollments, lessons, progressTracker } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import z from "zod";
 
 export const lectureProcedure = createTRPCRouter({
@@ -84,5 +84,77 @@ export const lectureProcedure = createTRPCRouter({
 
    return  true
 
+  }),
+  markAsComplete:protectedProcedure
+  .input(z.object({lectureId:z.string(),courseId:z.string()}))
+  .mutation(async({input,ctx})=>{
+    const [existingLecture]= await db
+    .select()
+    .from(lessons)
+    .where(eq(lessons.id,input.lectureId))
+    
+    if(!existingLecture){
+      throw new Error("Lecture not found")
+    }
+
+    const [existProgress] = await db
+    .select()
+    .from(progressTracker)
+    .where(
+      and(
+        eq(progressTracker.lessonId,input.lectureId),
+        eq(progressTracker.userId,ctx.session.user.id)
+      )
+    )
+    if(existProgress){
+      return existProgress
+    }
+
+    const data=await db
+    .insert(progressTracker)
+    .values({
+      lessonId:input.lectureId,
+      userId:ctx.session.user.id,
+      status:"completed"
+    })
+
+    // total lecture for progress
+    const totalLecture = await db
+      .select()
+      .from(lessons)
+      .where(eq(lessons.courseId, input.courseId));
+      
+   // completed lecture
+
+    const lectureIds= totalLecture.map((curr)=> curr.id )
+
+    const completedLecture = await db
+    .select()
+    .from(progressTracker)
+    .where(
+      and(
+        inArray(progressTracker.lessonId,lectureIds),
+        eq(progressTracker.userId,ctx.session.user.id)
+      )
+    )
+
+    const progressPercentage = Math.ceil((completedLecture.length / totalLecture.length)*100);
+    
+     
+       await db
+       .update(enrollments)
+       .set({
+        progress:progressPercentage.toString()
+       })
+       .where(
+        and(
+          eq(enrollments.courseId,input.courseId),
+          eq(enrollments.userId,ctx.session.user.id)
+        )
+       )
+     
+   
+    return data
+  
   })
 });

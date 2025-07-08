@@ -6,7 +6,6 @@ export const userStatus = pgEnum("status", ["active", "banned", "pending"]);
 export const courseStatus = pgEnum("course_status", ["draft", "published", "pending_approval", "rejected"]);
 export const difficulty = pgEnum("difficulty", ["beginner", "intermediate", "advanced"]);
 export const lessonType = pgEnum("lesson_type", ["video", "pdf", "external", "quiz"]);
-export const progressStatus = pgEnum("progress_status", ["not_started", "in_progress", "completed"]);
 export const paymentStatus = pgEnum("payment_status", ["pending", "success", "failed"]);
 
 
@@ -134,7 +133,7 @@ export const progressTracker = pgTable("progress_tracker", {
   id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
   userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
   lessonId: text("lesson_id").references(() => lessons.id,{onDelete:"cascade"}),
-  status: progressStatus("status").default("not_started"),
+  status: text("status").default("in_progress"),
   updatedAt: timestamp("updated_at").defaultNow()
 });
 

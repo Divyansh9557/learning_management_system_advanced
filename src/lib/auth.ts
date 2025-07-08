@@ -31,6 +31,10 @@ export const auth = betterAuth({
         type: "string",
         required:false
       },
+      enrolledCourses:{
+        type:"string[]",
+        required:false
+      }
     },
   },
    plugins: [
@@ -39,8 +43,15 @@ export const auth = betterAuth({
               .select({ role: schema.user.role })
               .from(schema.user)
               .where(eq(schema.user.id, session.userId));
+
+              const enrolledCourses = await db
+              .select({courseId:schema.enrollments.courseId})
+              .from(schema.enrollments)
+              .where(eq(schema.enrollments.userId, session.userId));
+
             return {
                 roles,
+                enrolledCourses:enrolledCourses.map(e => e.courseId ),
                 user: {
                     ...user,
                     newField: "newField",

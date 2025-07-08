@@ -2,7 +2,7 @@
 'use client';
 
 import Image from "next/image";
-import { Star, Clock, User, BookOpen, Loader } from "lucide-react";
+import {  User, Loader } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "./button";
@@ -17,7 +17,7 @@ interface CourseCardProps {
   lessons: number | null;
   thumbnail?: string | null;
   price?: number | null;
-  progress?: number | null;
+  progress?: string|number | null;
   level: "beginner" | "intermediate" | "advanced" | null;
   category: string | null;
   enrollment:any
@@ -27,14 +27,11 @@ const CourseCard = ({
   id = "545",
   title,
   instructor,
-  rating,
-  duration,
-  lessons,
   price,
   level,
   category,
   thumbnail,
-  enrollment
+  enrollment,
 
 }: CourseCardProps) => {
   // const router = useRouter();
@@ -84,7 +81,7 @@ const CourseCard = ({
         <div className="flex justify-between " >
 
              
-        <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-indigo-400 transition-colors">
+        <h3 className={`text-lg font-semibold  mb-2 line-clamp-2 ${enrollment?.progress==="100"?"group-hover:text-green-500 text-green-500 ":"group-hover:text-indigo-400 text-white " }  transition-colors`}>
           {title}
         </h3>
          
@@ -116,22 +113,7 @@ const CourseCard = ({
           <span>{instructor}</span>
         </div>
 
-        <div className="flex items-center justify-between mb-4 text-sm text-white/70">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-              <span>{rating}</span>
-            </div>
-            <div className="flex items-center">
-              <Clock className="w-4 h-4 mr-1" />
-              <span>{duration}</span>
-            </div>
-            <div className="flex items-center">
-              <BookOpen className="w-4 h-4 mr-1" />
-              <span>{lessons} lessons</span>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Progress bar */}
         {enrollment?.progress !== undefined && (
@@ -142,7 +124,7 @@ const CourseCard = ({
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                className={` ${enrollment?.progress==="100"?"bg-green-500":"bg-gradient-to-r from-indigo-500 to-purple-600"}  h-2 rounded-full transition-all duration-300`}
                 style={{ width: `${enrollment?.progress }%` }}
               ></div>
             </div>
@@ -164,9 +146,12 @@ const CourseCard = ({
             enrollment?.progress ? (
               <Link href={`/courses/${id}`} >
               <Button 
-              className="bg-gradient-to-r w-full from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium"
+              className={`bg-gradient-to-r w-full ${enrollment?.progress==="100"?"bg-green-500 hover:bg-green-400 text-white " : "from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700"}  transition-all duration-200 text-sm font-medium`}
               >
-                Continue
+                {
+                  enrollment?.progress==="100"?"Completed":"Continue"
+                }
+                
               </Button>
                 </Link>
             ):(

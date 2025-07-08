@@ -10,12 +10,12 @@ const CoursePage = () => {
   const trpc = useTRPC()
 
   const {data}= useSuspenseQuery(
-    trpc.course.getMany.queryOptions()
+    trpc.course.getPurchasedCourses.queryOptions()
   )
 
   console.log(data);
   return (
-   <CourseLayout  courses={data} forType="course" />
+   <CourseLayout purchasedCourse={data}  forType="course" />
   )
 }
 

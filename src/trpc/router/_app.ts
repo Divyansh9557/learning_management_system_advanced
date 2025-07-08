@@ -1,9 +1,9 @@
 
-import { lectureProcedure } from '@/app/procedures/lectureProcedure';
+import { lectureProcedure } from '@/procedures/lectureProcedure';
 import {  createTRPCRouter } from '../init';
-import { CourseProcedure } from '@/app/procedures/courseProcedure'; 
-import { quizProcedure } from '@/app/procedures/quizProcedure';
-import { adminProcedure } from '@/app/procedures/adminProcedurre';
+import { CourseProcedure } from '@/procedures/courseProcedure'; 
+import { quizProcedure } from '@/procedures/quizProcedure';
+import { adminProcedure } from '@/procedures/adminProcedurre';
 export const appRouter = createTRPCRouter({
    course:CourseProcedure,
    lecture:lectureProcedure,

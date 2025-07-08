@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { courses, enrollments, lessons, payments, user } from "@/db/schema";
+import { courses, enrollments, lessons, payments, progressTracker, user } from "@/db/schema";
 import { COURSE_PER_PAGE } from "@/lib/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { and, count, eq, ilike } from "drizzle-orm";
+import { and, count, eq, ilike, inArray } from "drizzle-orm";
 import z from "zod";
 
 import Stripe from "stripe";
@@ -100,7 +100,7 @@ export const CourseProcedure = createTRPCRouter({
         courseId: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input,ctx }) => {
       const [{ course, instructor }] = await db
         .select({
           course: courses,
@@ -115,7 +115,27 @@ export const CourseProcedure = createTRPCRouter({
         .from(lessons)
         .where(eq(lessons.courseId, input.courseId));
 
-      return { course, instructor, lecture };
+        const lectureIds= lecture.map((curr)=> curr.id )
+
+      const progressData = await db
+      .select()
+      .from(progressTracker)
+      .where(
+        and(
+          eq(progressTracker.userId,ctx.session.user.id),
+          inArray(progressTracker.lessonId,lectureIds)
+        )
+      )
+      const progressSet = new Set(progressData.map((curr) => curr.lessonId));
+
+      const lectureWithProgress = lecture.map((curr)=>({
+          ...curr,
+           completed:progressSet.has(curr.id)
+      }))
+
+      const progress = Math.floor((progressData.length/lecture.length)*100)
+
+      return { course, instructor, lectureWithProgress,progress,lectureCompleted:progressData.length };
     }),
 
   getManyInstructor: protectedProcedure.query(async ({ ctx }) => {
@@ -236,6 +256,35 @@ export const CourseProcedure = createTRPCRouter({
             message:"payment failed"
           })
          }
+    }),
+    getPurchasedCourses:protectedProcedure
+    .query(async({ctx})=>{
+          const purchasedCourses = await db
+          .select({
+            courses:{
+              id:courses.id,
+              title:courses.title,
+              thumbnailUrl:courses.thumbnailUrl,
+              description:courses.description,
+              price:courses.price,
+              difficulty:courses.difficulty,
+              category:courses.category,
+            },
+            instructor:{
+              name:user.name
+            },
+            progress:enrollments.progress,
+            completed:enrollments.completed
+          })
+          .from(enrollments)
+          .innerJoin(courses,eq(enrollments.courseId,courses.id))
+          .innerJoin(user,eq(courses.instructorId,user.id))
+          
+          .where(
+            eq(enrollments.userId,ctx.session.user.id)
+          )
+          
+          return purchasedCourses;
     })
 
 });
