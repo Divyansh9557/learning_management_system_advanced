@@ -1,3 +1,4 @@
+'use client'
 import {useQueryStates,parseAsInteger,parseAsString,} from "nuqs"
 
 

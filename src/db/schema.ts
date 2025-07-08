@@ -7,6 +7,7 @@ export const courseStatus = pgEnum("course_status", ["draft", "published", "pend
 export const difficulty = pgEnum("difficulty", ["beginner", "intermediate", "advanced"]);
 export const lessonType = pgEnum("lesson_type", ["video", "pdf", "external", "quiz"]);
 export const progressStatus = pgEnum("progress_status", ["not_started", "in_progress", "completed"]);
+export const paymentStatus = pgEnum("payment_status", ["pending", "success", "failed"]);
 
 
 export const user = pgTable("user", {
@@ -77,9 +78,9 @@ export const courses = pgTable("courses", {
     .primaryKey()
     .$defaultFn(() => nanoid()),
   title: text("title").notNull(),
-  description: text("description"),
-  thumbnailUrl: text("thumbnail_url"),
-  price: integer("price").default(0),
+  description: text("description").notNull(),
+  thumbnailUrl: text("thumbnail_url").notNull(),
+  price: integer("price").default(0).notNull(),
   difficulty: difficulty("difficulty"),
   category: text("category"),
   instructorId: text("instructor_id").references(() => user.id),
@@ -118,6 +119,15 @@ export const enrollments = pgTable("enrollments", {
   completed: boolean("completed").default(false),
   certificateUrl: text("certificate_url"),
   enrolledAt: timestamp("enrolled_at").defaultNow()
+});
+export const payments = pgTable("payments", {
+  id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
+  userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
+  courseId: text("course_id").references(() => courses.id,{onDelete:"cascade"}),
+  paymentId: text("payment_id").notNull(),
+  price:text("price").notNull(),
+  status: paymentStatus("payment_status").default("pending"),
+  createdAt: timestamp("created_at").defaultNow()
 });
 
 export const progressTracker = pgTable("progress_tracker", {

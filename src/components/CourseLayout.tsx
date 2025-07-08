@@ -38,6 +38,7 @@ const CourseLayout = ({ courses }: Props) => {
               price={course.price || 0}
               level={course.difficulty}
               category={course.category}
+              enrollment={course.enrollment}
             />
           ))}
 

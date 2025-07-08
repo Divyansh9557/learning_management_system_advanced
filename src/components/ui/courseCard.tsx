@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import Image from "next/image";
-import { Star, Clock, User, BookOpen } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Star, Clock, User, BookOpen, Loader } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/client";
+import { Button } from "./button";
+import Link from "next/link";
 
 interface CourseCardProps {
   id?: string | null;
@@ -16,6 +20,7 @@ interface CourseCardProps {
   progress?: number | null;
   level: "beginner" | "intermediate" | "advanced" | null;
   category: string | null;
+  enrollment:any
 }
 
 const CourseCard = ({
@@ -26,20 +31,34 @@ const CourseCard = ({
   duration,
   lessons,
   price,
-  progress,
   level,
   category,
   thumbnail,
+  enrollment
+
 }: CourseCardProps) => {
-  const router = useRouter();
+  // const router = useRouter();
+
+  const trpc = useTRPC()
+  const {mutate:purchaseCourse,isPending} = useMutation(
+    trpc.course.purchase.mutationOptions({
+      onSuccess:async(data:any)=>{
+
+        window.location.href = data.sessionUrl
+        console.log("success")
+      }
+    })
+  )
+
+  console.log(enrollment)
 
   const handleCourseAction = () => {
-    router.push(`/courses/${id}`);
+    purchaseCourse({courseId:id || "" })
+    // router.push(`/courses/${id}`);
   };
 
   return (
     <div
-      onClick={handleCourseAction}
       className="bg-[#0f0f0f] border border-gray-800 rounded-xl shadow hover:shadow-lg hover:border-indigo-500/30 group transition-all duration-300 cursor-pointer overflow-hidden"
     >
       {/* Thumbnail image */}
@@ -115,16 +134,16 @@ const CourseCard = ({
         </div>
 
         {/* Progress bar */}
-        {progress !== undefined && (
+        {enrollment?.progress !== undefined && (
           <div className="mb-4">
             <div className="flex justify-between text-sm text-white/70 mb-1">
               <span>Progress</span>
-              <span>{progress}%</span>
+              <span>{enrollment?.progress }%</span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
               <div
                 className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${enrollment?.progress }%` }}
               ></div>
             </div>
           </div>
@@ -132,18 +151,42 @@ const CourseCard = ({
 
         {/* Bottom Row */}
         <div className="flex items-center justify-between mt-2">
-          {price && (
-            <div className="text-xl font-bold text-white">₹{price}</div>
-          )}
-          <button
+          {
+            !enrollment?.progress && (
+              price && (
+                <div className="text-xl font-bold text-white">₹{price}</div>
+              )
+
+            )
+          }
+
+          {
+            enrollment?.progress ? (
+              <Link href={`/courses/${id}`} >
+              <Button 
+              className="bg-gradient-to-r w-full from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium"
+              >
+                Continue
+              </Button>
+                </Link>
+            ):(
+              <button
             onClick={(e) => {
               e.stopPropagation();
               handleCourseAction();
             }}
             className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium"
           >
-            {progress !== undefined ? "Continue" : "Enroll Now"}
+            {
+              isPending ? <Loader className="animate-spin" /> : (
+                  "Enroll Now"
+              )
+            }
+            
           </button>
+            )
+          }
+          
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ const Browsepage = () => {
   const [filter] = useFilterParams()
   const {data} = useSuspenseQuery(
     trpc.course.getMany.queryOptions({page:filter.page,category:filter.category,search:filter.search})  )
+    console.log(data)
   return (
    <CourseLayout courses={data} forType="browse" />
   )

@@ -1,9 +1,15 @@
 import { db } from "@/db";
-import { courses, lessons, user } from "@/db/schema";
-import { COURSE_PER_PAGE, } from "@/lib/constants";
+import { courses, enrollments, lessons, payments, user } from "@/db/schema";
+import { COURSE_PER_PAGE } from "@/lib/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { and, count, eq, ilike } from "drizzle-orm";
 import z from "zod";
+
+import Stripe from "stripe";
+import { TRPCError } from "@trpc/server";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-06-30.basil", // ✅ correct for SDK v13+
+});
 
 export const CourseProcedure = createTRPCRouter({
   getMany: protectedProcedure
@@ -20,38 +26,52 @@ export const CourseProcedure = createTRPCRouter({
         })
         .optional()
     )
-    .query(async ({ input }) => {
-      const data = await db
-        .select({
-          id: courses.id,
-          title: courses.title,
-          thumbnailUrl: courses.thumbnailUrl,
-          instructorId: courses.instructorId,
-          difficulty: courses.difficulty,
-          category: courses.category,
-          price: courses.price,
-          status:courses.status,
-          // Populated instructor fields
-          instructor: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-          },
-        })
-        .from(courses)
-        .leftJoin(user, eq(courses.instructorId, user.id))
-        .where(
-          and(
-            input?.search
-              ? ilike(courses.title, `%${input.search}%`)
-              : undefined,
-            input?.level ? eq(courses.difficulty, input.level) : undefined,
-            input?.category ? eq(courses.category, input.category) : undefined,
-            eq(courses.status,"published")
-          )
+    .query(async ({ input,ctx }) => {
+    const currentUserId = ctx.session.user.id;
+
+    const data = await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        thumbnailUrl: courses.thumbnailUrl,
+        instructorId: courses.instructorId,
+        difficulty: courses.difficulty,
+        category: courses.category,
+        price: courses.price,
+        status: courses.status,
+        instructor: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        enrollment: {
+          userId: enrollments.userId,
+          courseId: enrollments.courseId,
+          progress:enrollments.progress,
+          completed:enrollments.completed,
+          enrolledAt:enrollments.enrolledAt,
+        },
+      })
+      .from(courses)
+      .leftJoin(user, eq(courses.instructorId, user.id))
+      .leftJoin(
+        enrollments,
+        and(
+          eq(enrollments.courseId, courses.id),
+          eq(enrollments.userId, currentUserId)
         )
-        .limit(COURSE_PER_PAGE)
-        .offset(input?.page ? (input.page - 1) * COURSE_PER_PAGE : 0);
+      )
+      .where(
+        and(
+          input?.search ? ilike(courses.title, `%${input.search}%`) : undefined,
+          input?.level ? eq(courses.difficulty, input.level) : undefined,
+          input?.category ? eq(courses.category, input.category) : undefined,
+          eq(courses.status, 'published')
+        )
+      )
+      .limit(COURSE_PER_PAGE)
+      .offset( input?.page ? (input.page - 1) * COURSE_PER_PAGE :0);
+
 
       const [{ count: totalPage }] = await db
         .select({
@@ -67,8 +87,7 @@ export const CourseProcedure = createTRPCRouter({
             input?.category ? eq(courses.category, input.category) : undefined
           )
         );
-     
-        
+
       return {
         data,
         totalPage,
@@ -132,15 +151,91 @@ export const CourseProcedure = createTRPCRouter({
       return data;
     }),
 
-    publish:protectedProcedure
-    .input(z.object({courseId:z.string()}))
-    .mutation(async({input})=>{
-         const publishCourse= await db
-         .update(courses)
-         .set({status:"pending_approval"})
-         .where(eq(courses.id,input.courseId))
+  publish: protectedProcedure
+    .input(z.object({ courseId: z.string() }))
+    .mutation(async ({ input }) => {
+      const publishCourse = await db
+        .update(courses)
+        .set({ status: "pending_approval" })
+        .where(eq(courses.id, input.courseId));
 
-         return publishCourse
+      return publishCourse;
     }),
-  
+  purchase: protectedProcedure
+    .input(z.object({ courseId: z.string() }))
+    .mutation(async ({ input,ctx }) => {
+      const [product] = await db
+        .select()
+        .from(courses)
+        .where(eq(courses.id, input.courseId));
+      if (!product) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "course not found",
+        });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "inr",
+              unit_amount: product.price * 100, // ₹ to paise
+              product_data: {
+                name: product.title,
+                description: product.description,
+                images: [product.thumbnailUrl], // Must be HTTPS
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.BETTER_AUTH_URL}/success?sessionId={CHECKOUT_SESSION_ID}&courseId=${product.id}`,
+        cancel_url: `${process.env.BETTER_AUTH_URL}/cancel`,
+      });
+
+      await db
+      .insert(payments)
+      .values({
+        paymentId:session.id,
+        courseId:product.id,
+        userId:ctx.session.user.id,
+        price:product.price.toString()
+      })
+
+      return {sessionUrl:session.url}
+    }),
+    enrollToCourse:protectedProcedure
+    .input(z.object({sessionId:z.string(),courseId:z.string()}))
+    .mutation(async({input,ctx})=>{
+       const session=await stripe.checkout.sessions.retrieve(input.sessionId);
+         if(session.payment_status==="paid"){
+          await db
+          .update(payments)
+          .set({status:"success"})
+          .where(
+            and(
+              eq(payments.courseId,input.courseId),
+              eq(payments.userId,ctx.session.user.id)
+          )
+          );
+          
+           await db
+          .insert(enrollments)
+          .values({
+            userId:ctx.session.user.id,
+            courseId:input.courseId
+          })
+            return { message: "enrolled successfully" };
+         }
+         else{
+          throw new TRPCError({
+            code:"UNAUTHORIZED",
+            message:"payment failed"
+          })
+         }
+    })
+
 });
