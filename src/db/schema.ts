@@ -85,6 +85,9 @@ export const courses = pgTable("courses", {
   instructorId: text("instructor_id").references(() => user.id),
   status: courseStatus("status").default("draft"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
 });
 
 

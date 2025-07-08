@@ -4,6 +4,8 @@ import { Search, Bell} from 'lucide-react';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -26,7 +28,7 @@ const Navbar= () => {
       }
    }
 
-
+  const router = useRouter()
 
   return (
     <nav className="bg-[#030303]/95 backdrop-blur-sm border-b border-white/[0.08] px-4 lg:px-6 py-2.5 sticky top-0 z-50">
@@ -40,7 +42,7 @@ const Navbar= () => {
               <Menu size={20} />
             </button>
           )} */}
-          
+
           <div className="flex items-center">
             <div className="bg-gradient-to-r from-indigo-500 to-rose-500 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
               <span className="text-white font-bold text-sm">L</span>
@@ -63,15 +65,29 @@ const Navbar= () => {
             />
           </div>
 
-          <div className='text-white mx-3 ' >
-            {
-              !data?.user? "":(
-                <Link href={redirectUrl()} >Dashboard</Link>
-              )
-            }
+          <div className="text-white mx-3 ">
+            {!data?.user ? "" : <Link href={redirectUrl()}>Dashboard</Link>}
           </div>
 
-         
+          {data?.user ? (
+            <Button
+              onClick={() => {
+                authClient.signOut();
+                router.push("/");
+              }}
+            >
+              Logout
+            </Button>
+          ) : (
+            <>
+              <Link href={"/sign-in"}>
+                <Button>Login</Button>
+              </Link>
+              <Link href={"/sign-up"}>
+                <Button>Signup</Button>
+              </Link>
+            </>
+          )}
 
           <button className="p-2 text-white/60 rounded-lg hover:text-white hover:bg-white/[0.05] transition-colors relative">
             <Bell size={20} />
@@ -82,12 +98,18 @@ const Navbar= () => {
 
           <div className="flex items-center space-x-3">
             <Avatar>
-             <AvatarImage src={data?.user.image || "https://github.com/shadcn.png" } />
-             <AvatarFallback>CN</AvatarFallback>
-               </Avatar> 
+              <AvatarImage
+                src={data?.user.image || "https://github.com/shadcn.png"}
+              />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
             <div className="hidden lg:block">
-              <div className="text-sm font-medium text-white">{data?.user.name || "guest"}</div>
-              <div className="text-xs text-white/40 capitalize">{data?.roles?.[0]?.role || ""}</div>
+              <div className="text-sm font-medium text-white">
+                {data?.user.name || "guest"}
+              </div>
+              <div className="text-xs text-white/40 capitalize">
+                {data?.roles?.[0]?.role || ""}
+              </div>
             </div>
           </div>
         </div>

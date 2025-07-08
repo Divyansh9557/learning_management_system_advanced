@@ -1,32 +1,68 @@
-
+'use client'
 import {
   Star,
   Clock,
   User,
   BookOpen,
-  Play,
   Download,
-  MessageCircle,
 } from "lucide-react";
 import { CourseTab } from "./CourseTab";
+import { useParams } from "next/navigation";
+import {  useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useTRPC } from "@/trpc/client";
 
 const CourseIdPage = () => {
 
- 
-
+ const [active,setActive] = useState<number>(0)
+const {courseId} = useParams() as  {courseId:string}
   
+const trpc = useTRPC()
+ const {data,isLoading} = useSuspenseQuery(
+  trpc.course.getOne.queryOptions({courseId})
+ )
 
+ function formatSecondsToHHMMSS(totalSeconds:number) {
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+   const handleLectureChange= (n:number)=>{
+       setActive(n)
+   }
+
+   if(isLoading){
+    return <>Loading...</>
+   }
+
+    const duration = ()=>{
+      const time = data?.lecture.reduce((acc,curr)=>{
+        return curr.duration ? curr.duration+acc : acc+0
+      },0)
+      return formatSecondsToHHMMSS(time)
+    }
+
+
+//  console.log(data)
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="  text-white">
       {/* Video Player Section */}
-      <div className="bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="aspect-video bg-gray-900 flex items-center justify-center">
-            <div className="text-center">
-              <Play className="w-20 h-20 text-white mb-4 mx-auto" />
-              <p className="text-white text-lg">Components and JSX</p>
-              <p className="text-gray-400">Lesson 3 of 24 • 20:15</p>
-            </div>
+      <div className="">
+        <div className="max-w-5xl mx-auto">
+          <div className="aspect-video bg-black">
+            <video
+              className="w-[100%] h-[100%] object-cover"
+              controls
+              poster={data?.course.thumbnailUrl || "" } // Optional thumbnail
+            >
+              <source
+                src={data?.lecture[active]?.videoUrl || undefined }
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
       </div>
@@ -37,13 +73,13 @@ const CourseIdPage = () => {
           {/* Course Header */}
           <div className="bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-700 mb-6">
             <h1 className="text-2xl font-bold text-white mb-4">
-              Advanced React Development
+              {data?.lecture[active]?.title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-4">
               <div className="flex items-center">
                 <User className="w-4 h-4 mr-1" />
-                <span>Sarah Johnson</span>
+                <span>{data?.instructor.name}</span>
               </div>
               <div className="flex items-center">
                 <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
@@ -51,17 +87,17 @@ const CourseIdPage = () => {
               </div>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
-                <span>8 hours total</span>
+                <span>{duration()} hours total</span>
               </div>
               <div className="flex items-center">
                 <BookOpen className="w-4 h-4 mr-1" />
-                <span>24 lessons</span>
+                <span>{data?.lecture.length}</span>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-400">
-                Progress: 8/24 lessons completed
+                Progress: 0/ {data?.lecture.length} lessons completed
               </div>
               <div className="w-48 bg-gray-700 rounded-full h-2">
                 <div
@@ -73,8 +109,11 @@ const CourseIdPage = () => {
           </div>
 
           {/* Tabs */}
-          <CourseTab/>
-          
+          <CourseTab
+            handleLectureChange={handleLectureChange}
+            data={data}
+            active={active}
+          />
         </div>
 
         {/* Sidebar */}
@@ -85,12 +124,12 @@ const CourseIdPage = () => {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Completed</span>
-                <span className="font-medium text-white">8/24</span>
+                <span className="font-medium text-white">0/{data?.lecture.length}</span>
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
-                  style={{ width: "33%" }}
+                  style={{ width: "43%" }}
                 />
               </div>
               <div className="text-center text-sm text-gray-400">
@@ -107,10 +146,7 @@ const CourseIdPage = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Download Resources
               </button>
-              <button className="w-full flex items-center justify-center p-3 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Ask Question
-              </button>
+              
             </div>
           </div>
         </div>

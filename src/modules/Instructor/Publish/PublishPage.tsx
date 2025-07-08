@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { CheckCircle, Eye, Users, Star } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 
 const PublishPage = () => {
@@ -14,26 +14,36 @@ const PublishPage = () => {
   const router= useRouter()
   const [agreed, setAgreed] = useState(false);
 
-  const handlePublish = () => {
-    // Handle publish logic here
-    router.push('/instructor/dashboard');
-  };
-
+  
+  
   const trpc = useTRPC()
-
+  const queryClient= useQueryClient()
   const {data} = useSuspenseQuery(
     trpc.course.getOne.queryOptions({courseId})
   )
    
-  console.log(data)
+    const {mutate:publishCourse,isPending} = useMutation(
+         trpc.course.publish.mutationOptions({
+          onSuccess:async()=>{
+            await queryClient.invalidateQueries(
+              trpc.course.getManyInstructor.queryOptions()
+            )
+          }
+        })
+      )
+    
+      const handlePublish = () => {
+         publishCourse({courseId})
+        router.push('/instructor/dashboard');
+      };
   const handlePrev = () => {
     router.back()
   };
 
 
-  const duration = data?.reduce((acc,data)=>{
-     if(data.lecture.duration){
-      return acc + data.lecture.duration
+  const duration = data.lecture?.reduce((acc,data)=>{
+     if(data.duration){
+      return acc + data.duration
      } else {
        return acc + 0
      }
@@ -65,9 +75,9 @@ const PublishPage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-gray-800 p-6 rounded-lg">
-                <h3 className="text-xl text-white font-semibold mb-4">{data[0].course.title}</h3>
+                <h3 className="text-xl text-white font-semibold mb-4">{data.course.title}</h3>
                 <p className="text-white mb-4">
-                  {data[0].course.description}
+                  {data.course.description}
                 </p>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -92,7 +102,7 @@ const PublishPage = () => {
                 <div className="border-t text-white border-gray-700 pt-4">
                   <h4 className="font-semibold  mb-2">Course Includes:</h4>
                   <ul className="text-sm text-white  space-y-1">
-                    <li>• {data.length} video lessons ({formatSecondsToTime(duration)} hours total)</li>
+                    <li>• {data.lecture.length} video lessons ({formatSecondsToTime(duration)} hours total)</li>
                     <li>• Downloadable resources</li>
                     <li>• Certificate of completion</li>
                     <li>• Lifetime access</li>
@@ -104,15 +114,15 @@ const PublishPage = () => {
                 <h4 className="font-semibold mb-2">Publish Checklist</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <CheckCircle className={`w-4 h-4  ${(data.course.title && data.course.description) ? "text-green-400":"text-gray-500" } `} />
                     <span className="text-sm">Course title and description added</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <CheckCircle className={`w-4 h-4  ${(data.lecture.length>0 && data.lecture[0].duration && data.lecture[0].title) ?"text-green-400":"text-gray-500" } `} />
                     <span className="text-sm">Course content uploaded</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <CheckCircle className={`w-4 h-4 ${data.course.price ?"text-green-400" :"text-gray-500" } `} />
                     <span className="text-sm">Pricing configured</span>
                   </div>
                 </div>
@@ -120,6 +130,7 @@ const PublishPage = () => {
 
               <div className="flex items-center gap-2">
                 <input 
+                  disabled={!!(data.course.title==='' || data.course?.description==='' || data.lecture?.length===0 || data?.lecture[0]?.duration===0 || data?.lecture[0]?.title==="" && data.course?.price===0)}
                   type="checkbox" 
                   id="terms"
                   checked={agreed}
@@ -144,10 +155,12 @@ const PublishPage = () => {
           </Button>
           <Button 
             onClick={handlePublish}
-            disabled={!agreed}
+            disabled={ !agreed || data.lecture.length===0 || data.lecture[0]?.duration===0 || isPending }
             className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
-            Publish Course
+            {
+              isPending? "Publishing...":"Publish Course"
+            }
           </Button>
         </div>
       </div>

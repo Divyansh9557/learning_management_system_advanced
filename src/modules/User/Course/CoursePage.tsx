@@ -15,7 +15,7 @@ const CoursePage = () => {
 
   console.log(data);
   return (
-   <CourseLayout forType="course" />
+   <CourseLayout  courses={data} forType="course" />
   )
 }
 

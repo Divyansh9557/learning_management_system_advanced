@@ -15,7 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { name: "Home", path: "/", icon: Home },
     { name: "Dashboard", path: "/dashboard", icon: BookOpen },
     { name: "My Courses", path: "/courses", icon: BookOpen },
-    { name: "Browse Courses", path: "/browse", icon: Search },
+    { name: "Browse Courses", path: "/browse?page=1", icon: Search },
     { name: "Quizzes", path: "/quizzes", icon: FileText },
     { name: "Certificates", path: "/certificates", icon: Download },
     { name: "Profile", path: "/profile/1", icon: User },
@@ -23,8 +23,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const adminNavItems = [
     { name: "Home", path: "/", icon: Home },
     { name: "Dashboard", path: "/admin/dashboard", icon: Gauge },
-    { name: "User Management", path: "/admin/user-management", icon: User },
-    { name: "Course Moderation", path: "/admin/course-moderation", icon: Search },
+    { name: "User Management", path: "/admin/user-management?page=1", icon: User },
+    { name: "Course Moderation", path: "/admin/course-moderation?page=1", icon: Search },
   ];
   const instructorNavItems = [
     { name: "Home", path: "/", icon: Home },
@@ -45,6 +45,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
         return studentNavItems;
     }
   };
+
+ 
 
   return (
     <aside className="w-64 fixed top-12 left-0 h-full hidden md:block bg-[#030303]/95 backdrop-blur-sm border-r border-white/[0.08]">

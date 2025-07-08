@@ -37,12 +37,7 @@ const AdminDashboard = () => {
     }
   ];
 
-  const recentUsers = [
-    { id: 1, name: "John Doe", email: "john@example.com", role: "Student", status: "Active" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Instructor", status: "Active" },
-    { id: 3, name: "Bob Johnson", email: "bob@example.com", role: "Student", status: "Pending" },
-  ];
-
+ 
   const recentCourses = [
     { id: 1, title: "Advanced React", instructor: "John Teacher", status: "Approved", students: 145 },
     { id: 2, title: "Python Basics", instructor: "Sarah Wilson", status: "Pending", students: 0 },
@@ -79,7 +74,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-6 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4 text-white">Recent Users</h2>
-          <UserTable users={recentUsers} compact />
+          {/* <UserTable users={recentUsers} compact /> */}
         </div>
 
         <div className="bg-white/[0.02] border border-white/[0.08] rounded-lg p-6 backdrop-blur-sm">
