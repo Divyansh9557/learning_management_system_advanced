@@ -20,7 +20,7 @@ import { useFilterParams } from "@/hooks/useQueryState";
 interface UserTableProps {
   users?: userGetOne;
   compact?: boolean;
-  adminUser:adminDashboardCourse
+  adminUser?:adminDashboardCourse
 }
 
 
