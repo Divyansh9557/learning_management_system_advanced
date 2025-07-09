@@ -158,7 +158,7 @@ const HomePage = () => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-white">
-                      {course.course.price}
+                      ₹ {course.course.price}
                     </span>
                     <Link href={`/browse?page=1`}>
                       <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
