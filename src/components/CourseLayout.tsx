@@ -85,9 +85,14 @@ const CourseLayout = ({ courses,forType,purchasedCourse }: Props) => {
       <div className="my-10 border-t border-zinc-800" />
 
       {/* Pagination */}
+      {
+        !courses?.data.length && (
       <div className="flex justify-center">
         <CoursePagination totalPage={courses?.totalPage || 0 } />
       </div>
+
+        )
+      }
 
       {/* Footer CTA */}
       <div className="text-center mt-14 text-sm text-zinc-500">

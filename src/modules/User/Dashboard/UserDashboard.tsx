@@ -55,37 +55,53 @@ const StudentDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Continue Learning */}
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">
-              Continue Learning
-            </h2>
-            <Link href={'/courses'} >
-            <button className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-              View All
-            </button>
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.enrolledCourses.slice(0, 2).map((course,index) => (
-              <CourseCard 
-              key={course.course.id}
-                category={course.course.category}
-                enrollment={course.enrollments}
-                instructor={data.courseDetails[index].instructor.name}
-                level={course.course.difficulty}
-                title={course.course.title}
-                thumbnail={course.course.thumbnailUrl}
-                rating={ 0 }
-                duration={"10"}
-                lessons={5}
-              
-              />
-            ))}
-          </div>
-        </div>
+       {/* Continue Learning */}
+<div className="lg:col-span-2">
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-xl font-semibold text-white">
+      Continue Learning
+    </h2>
+    <Link href="/courses">
+      <button className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+        View All
+      </button>
+    </Link>
+  </div>
+
+  {data.enrolledCourses.length === 0 ? (
+    <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+      <BookOpen className="w-12 h-12 text-gray-400" />
+      <h3 className="text-2xl font-bold text-white">
+        No Enrolled Courses Yet
+      </h3>
+      <p className="text-gray-400 max-w-md">
+        It looks like you haven’t enrolled in any courses. Start exploring and boost your skills today!
+      </p>
+      <Link href="/browse?page=1">
+        <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 transition-all text-white rounded-lg font-medium">
+          Browse Courses
+        </button>
+      </Link>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {data.enrolledCourses.slice(0, 2).map((course, index) => (
+        <CourseCard
+          key={course.course.id}
+          category={course.course.category}
+          enrollment={course.enrollments}
+          instructor={data.courseDetails[index].instructor.name}
+          level={course.course.difficulty}
+          title={course.course.title}
+          thumbnail={course.course.thumbnailUrl}
+          rating={0}
+          duration={"10"}
+          lessons={5}
+        />
+      ))}
+    </div>
+  )}
+</div>
 
         {/* Recent Activity */}
         <div>
