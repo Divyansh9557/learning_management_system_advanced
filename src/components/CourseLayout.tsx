@@ -86,7 +86,7 @@ const CourseLayout = ({ courses,forType,purchasedCourse }: Props) => {
 
       {/* Pagination */}
       {
-        !courses?.data.length && (
+        courses?.data.length!==0 && (
       <div className="flex justify-center">
         <CoursePagination totalPage={courses?.totalPage || 0 } />
       </div>
