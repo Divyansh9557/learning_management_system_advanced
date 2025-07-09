@@ -11,19 +11,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {  UserCheck, Trash2 } from "lucide-react";
-import { userGetOne } from "@/types/types";
+import { adminDashboardCourse, userGetOne } from "@/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { useFilterParams } from "@/hooks/useQueryState";
 
 
 interface UserTableProps {
-  users: userGetOne;
+  users?: userGetOne;
   compact?: boolean;
+  adminUser:adminDashboardCourse
 }
 
 
-export function UserTable({ users, compact = false }: UserTableProps) {
+export function UserTable({adminUser, users, compact = false }: UserTableProps) {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
   const  [filter]= useFilterParams()
@@ -85,7 +86,33 @@ const handlePromote = (userId: string,userRole:string) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.existUser.map((user) => (
+           {
+            adminUser ? (<>
+             {adminUser.allUsers.slice(0,5).map((user) => (
+            <TableRow key={user.id} className="border-white/[0.08] hover:bg-white/[0.02]">
+              <TableCell className="font-medium text-white">{user.name}</TableCell>
+              <TableCell className="text-white/70">{user.email}</TableCell>
+              <TableCell>
+                <Badge 
+                  variant="secondary"
+                  className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
+                >
+                  {user.role}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge 
+                  // variant={user.status === "Active" ? "default" : "secondary"}
+                  className={"bg-green-500/20 text-green-300 border-green-500/30"}
+                >
+                  active
+                </Badge>
+              </TableCell>
+             
+            </TableRow>
+          ))}
+            </>):(<>
+             {users?.existUser.map((user) => (
             <TableRow key={user.id} className="border-white/[0.08] hover:bg-white/[0.02]">
               <TableCell className="font-medium text-white">{user.name}</TableCell>
               <TableCell className="text-white/70">{user.email}</TableCell>
@@ -136,6 +163,8 @@ const handlePromote = (userId: string,userRole:string) => {
               )}
             </TableRow>
           ))}
+            </>)
+           }
         </TableBody>
       </Table>
     </div>

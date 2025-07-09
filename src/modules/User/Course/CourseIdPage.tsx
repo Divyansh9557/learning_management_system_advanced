@@ -9,8 +9,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTRPC } from "@/trpc/client";
+import { toPng } from "html-to-image";
 
 const CourseIdPage = () => {
   const [active, setActive] = useState<number>(0);
@@ -87,11 +88,27 @@ const CourseIdPage = () => {
     return formatSecondsToHHMMSS(time || 0);
   };
 
+  const ref = useRef<HTMLDivElement>(null)
+ 
+   const onButtonClick = useCallback(() => {
+     if (ref.current === null) {
+       return
+     }
+ 
+     toPng(ref.current, { cacheBust: true, })
+       .then((dataUrl) => {
+         const link = document.createElement('a')
+         link.download = 'certificate.png'
+         link.href = dataUrl
+         link.click()
+       })
+       .catch((err) => {
+         console.log(err)
+       })
+   }, [ref])
   if (isLoading)
     return <div className="text-center py-10 text-white">Loading...</div>;
 
-
-  console.log(data.lectureWithProgress[active].videoUrl)
 
   return (
     <div className="text-white bg-[#0d0d0d] min-h-screen">
@@ -177,6 +194,8 @@ const CourseIdPage = () => {
             handleLectureChange={handleLectureChange}
             data={data}
             active={active}
+            onButtonClick={onButtonClick}
+            ref= {ref}
           />
         </div>
 
@@ -212,14 +231,7 @@ const CourseIdPage = () => {
               <Download className="w-4 h-4" />
               Download Resources
             </button>
-            {
-              data.progress===100 && (
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition duration-200">
-              <Download className="w-4 h-4" />
-              Download Certificate
-            </button>
-              )
-            }
+           
              </div>
           </div>
         </div>

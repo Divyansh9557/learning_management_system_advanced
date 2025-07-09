@@ -11,7 +11,7 @@ interface StatsCardProps {
   trend: "up" | "down";
 }
 
-export function StatsCard({ title, value, change, icon: Icon, trend }: StatsCardProps) {
+export function StatsCard({ title, value, change, icon: Icon, trend, }: StatsCardProps) {
   return (
     <Card className="bg-white/[0.02] border-white/[0.08] backdrop-blur-sm hover:bg-white/[0.03] transition-colors">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

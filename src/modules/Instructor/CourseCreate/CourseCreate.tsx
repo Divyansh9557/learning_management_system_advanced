@@ -2,7 +2,7 @@
 'use client';
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { uploadOnCloudinary } from "@/actions/uploadOnCloudinary";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import {  courseGetOneInstructor } from "@/types/types";
 
 // 🧠 Zod schema with price
 const courseSchema = z.object({
@@ -40,10 +41,16 @@ const courseSchema = z.object({
 
 type CourseFormData = z.infer<typeof courseSchema>;
 
-const CourseCreate = () => {
+
+interface CourseCreateProps {
+  initialValues?:courseGetOneInstructor
+}
+
+const CourseCreate = ({initialValues}:CourseCreateProps) => {
   const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setIsLoading] = useState(false);
+  const {courseId} = useParams() as {courseId:string}
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -63,6 +70,21 @@ const CourseCreate = () => {
       },
     })
   );
+  const { mutate:updateCourse } = useMutation(
+    trpc.course.updateCourse.mutationOptions({
+      onSuccess: () => {
+        setIsLoading(false);
+        queryClient.invalidateQueries(
+          trpc.course.getManyInstructor.queryOptions()
+        );
+        router.push(`/instructor/dashboard`);
+      },
+      onError: (error) => {
+        console.error("Error creating course:", error);
+        setIsLoading(false);
+      },
+    })
+  );
 
   const {
     register,
@@ -71,6 +93,13 @@ const CourseCreate = () => {
     formState: { errors },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
+    defaultValues:{
+      category: initialValues?.category || "",
+      difficulty:initialValues?.difficulty || "beginner",
+      description:initialValues?.description || "",
+      price:initialValues?.price.toString() || "0",
+      title:initialValues?.title || ""
+    }
   });
 
   const onSubmit = async (data: CourseFormData) => {
@@ -82,15 +111,29 @@ const CourseCreate = () => {
     const response = await uploadOnCloudinary(formData) as any;
 
     const { category, description, difficulty, title, price } = data;
-    mutate({
+    
+    if(initialValues){
+         updateCourse({
+          category,
+          courseId,
+          description,
+          difficulty,
+          price:parseInt(price),
+          thumbnailUrl:response.secure_url,
+          title,
+         })
+    }
+    else{
+       mutate({
       title,
       category,
       difficulty,
       description,
-      price: Number(price),
+      price: parseInt(price),
       thumbnailUrl: response.secure_url,
     });
   };
+    }
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,15 +147,21 @@ const CourseCreate = () => {
     <div className="min-h-screen bg-[#0a0a0b] text-white">
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="mb-10">
-          <h1 className="text-3xl font-bold mb-2">Course Title & Description</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Course Title & Description
+          </h1>
           <p className="text-gray-400">
-            Set your course name, category, and detailed description
+            {initialValues
+              ? " Update your course name, category, and detailed description"
+              : " Set your course name, category, and detailed description"}
           </p>
         </div>
 
         <Card className="bg-[#111112] border border-gray-800 text-white shadow-md">
           <CardHeader>
-            <CardTitle className="text-white text-xl">Basic Information</CardTitle>
+            <CardTitle className="text-white text-xl">
+              Basic Information
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
@@ -125,7 +174,9 @@ const CourseCreate = () => {
                   className="bg-gray-800 border border-gray-700 text-white placeholder:text-gray-400"
                   {...register("title")}
                 />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                {errors.title && (
+                  <p className="text-red-500 text-sm">{errors.title.message}</p>
+                )}
               </div>
 
               {/* Category */}
@@ -143,7 +194,9 @@ const CourseCreate = () => {
                   <option>Marketing</option>
                 </select>
                 {errors.category && (
-                  <p className="text-red-500 text-sm">{errors.category.message}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.category.message}
+                  </p>
                 )}
               </div>
 
@@ -161,7 +214,9 @@ const CourseCreate = () => {
                   <option value="advanced">Advanced</option>
                 </select>
                 {errors.difficulty && (
-                  <p className="text-red-500 text-sm">{errors.difficulty.message}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.difficulty.message}
+                  </p>
                 )}
               </div>
 
@@ -175,7 +230,9 @@ const CourseCreate = () => {
                   className="bg-gray-800 border border-gray-700 text-white"
                   {...register("price")}
                 />
-                {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
+                )}
               </div>
 
               {/* Description */}
@@ -189,7 +246,9 @@ const CourseCreate = () => {
                   {...register("description")}
                 />
                 {errors.description && (
-                  <p className="text-red-500 text-sm">{errors.description.message}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.description.message}
+                  </p>
                 )}
               </div>
 
@@ -215,7 +274,9 @@ const CourseCreate = () => {
                   </div>
                 )}
                 {errors.thumbnailUrl && (
-                  <p className="text-red-500 text-sm">{errors.thumbnailUrl.message as string}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.thumbnailUrl.message as string}
+                  </p>
                 )}
               </div>
 
@@ -229,8 +290,18 @@ const CourseCreate = () => {
                 >
                   Back to Dashboard
                 </Button>
-                <Button disabled={loading} type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  {loading ? "Uploading..." : "Upload Course"}
+                <Button
+                  disabled={loading}
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {initialValues
+                    ? loading
+                      ? "Uploading..."
+                      : "Update Course"
+                    : loading
+                    ? "Uploading..."
+                    : "Upload Course"}
                 </Button>
               </div>
             </form>

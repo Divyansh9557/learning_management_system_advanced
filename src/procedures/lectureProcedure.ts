@@ -1,6 +1,6 @@
 import { deleteFromCloudinary } from "@/actions/uploadOnCloudinary";
 import { db } from "@/db";
-import { enrollments, lessons, progressTracker } from "@/db/schema";
+import { certificates, enrollments, lessons, progressTracker } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { and, eq, inArray } from "drizzle-orm";
 import z from "zod";
@@ -139,9 +139,31 @@ export const lectureProcedure = createTRPCRouter({
     )
 
     const progressPercentage = Math.ceil((completedLecture.length / totalLecture.length)*100);
+
+    if(progressPercentage===100){
+     const [enroll]= await db 
+      .select()
+      .from(certificates )
+      .where(
+        and(
+          eq(certificates.courseId,input.courseId),
+          eq(certificates.userId,ctx.session.user.id),
+        )
+      )
+      if(!enroll){
+        const url = Math.ceil(Math.random()*1000000)
+        await db
+        .insert(certificates)
+        .values({
+          courseId:input.courseId,
+          userId:ctx.session.user.id,
+          certificateUrl:url.toString()
+        })
+      }
+    }
     
      
-       await db
+      await db
        .update(enrollments)
        .set({
         progress:progressPercentage.toString()

@@ -23,7 +23,7 @@ const CourseModeration = () => {
      
       
       {/* Courses Table */}
-      <CourseTable courseData={courseData} />
+      <CourseTable courseData={courseData  } />
       <CoursePagination limit={COURSE_PER_PAGE_ADMIN} totalPage={courseData?.totalPage || 1} />
     </div>
   )

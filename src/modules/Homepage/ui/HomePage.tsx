@@ -1,11 +1,21 @@
+'use client'
 /* eslint-disable @next/next/no-img-element */
-
 import { HeroGeometric } from '../components/HeroSection'; 
 import { Card, CardContent} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, Award, TrendingUp, Star, Play, ArrowRight, CheckCircle } from 'lucide-react';
+import { BookOpen, Users, Award, TrendingUp,  ArrowRight, CheckCircle } from 'lucide-react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useTRPC } from '@/trpc/client';
+import Link from 'next/link';
+import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 
 const HomePage = () => {
+
+  const trpc = useTRPC()
+  const {data}= useSuspenseQuery(
+     trpc.course.homePage.queryOptions()
+  )
+
  const features = [
     {
       icon: BookOpen,
@@ -40,38 +50,9 @@ const HomePage = () => {
     { value: '24/7', label: 'Support', icon: CheckCircle }
   ];
 
-  const popularCourses = [
-    {
-      title: 'Full Stack Web Development',
-      instructor: 'Sarah Johnson',
-      rating: 4.9,
-      students: '12,450',
-      duration: '40 hours',
-      price: '$99',
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop'
-    },
-    {
-      title: 'Data Science with Python',
-      instructor: 'Dr. Michael Chen',
-      rating: 4.8,
-      students: '8,930',
-      duration: '35 hours',
-      price: '$89',
-      image: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=250&fit=crop'
-    },
-    {
-      title: 'UI/UX Design Mastery',
-      instructor: 'Emily Roberts',
-      rating: 4.9,
-      students: '15,670',
-      duration: '28 hours',
-      price: '$79',
-      image: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=250&fit=crop'
-    }
-  ];
 
   return (
-    <div className="min-h-screen bg-[#030303]">
+    <div className=" max-h-[50%] md:min-h-screen bg-[#030303]">
       {/* Hero Section */}
       <HeroGeometric
         badge="LearnHub LMS"
@@ -84,21 +65,32 @@ const HomePage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">LearnHub</span>
+              Why Choose{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">
+                LearnHub
+              </span>
             </h2>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Experience the future of online learning with our cutting-edge platform designed for modern learners
+              Experience the future of online learning with our cutting-edge
+              platform designed for modern learners
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-white/[0.02] border-white/[0.08] backdrop-blur-sm hover:bg-white/[0.05] transition-all duration-300 group">
+              <Card
+                key={index}
+                className="bg-white/[0.02] border-white/[0.08] backdrop-blur-sm hover:bg-white/[0.05] transition-all duration-300 group"
+              >
                 <CardContent className="p-6">
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div
+                    className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  >
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {feature.title}
+                  </h3>
                   <p className="text-white/60">{feature.description}</p>
                 </CardContent>
               </Card>
@@ -116,7 +108,9 @@ const HomePage = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/[0.05] border border-white/[0.08] mb-4">
                   <stat.icon className="w-8 h-8 text-indigo-400" />
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-3xl font-bold text-white mb-1">
+                  {stat.value}
+                </div>
                 <div className="text-white/60">{stat.label}</div>
               </div>
             ))}
@@ -129,48 +123,48 @@ const HomePage = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Popular <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">Courses</span>
+              Popular{" "}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">
+                Courses
+              </span>
             </h2>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Join thousands of students already learning with our most popular courses
+              Join thousands of students already learning with our most popular
+              courses
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {popularCourses.map((course, index) => (
-              <Card key={index} className="bg-white/[0.02] border-white/[0.08] backdrop-blur-sm overflow-hidden hover:bg-white/[0.05] transition-all duration-300 group">
+            {data.map((course, index) => (
+              <Card
+                key={index}
+                className="bg-white/[0.02] border-white/[0.08] backdrop-blur-sm overflow-hidden hover:bg-white/[0.05] transition-all duration-300 group"
+              >
                 <div className="relative">
-                  <img 
-                    src={course.image} 
-                    alt={course.title}
+                  <img
+                    src={course.course.thumbnailUrl}
+                    alt={course.course.title}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <Button size="sm" className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm hover:bg-white/30">
-                    <Play className="w-4 h-4" />
-                  </Button>
                 </div>
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-white mb-2">{course.title}</h3>
-                  <p className="text-white/60 mb-4">by {course.instructor}</p>
-                  
-                  <div className="flex items-center gap-4 mb-4 text-sm text-white/60">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span>{course.rating}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{course.students}</span>
-                    </div>
-                    <div>{course.duration}</div>
-                  </div>
-                  
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {course.course.title}
+                  </h3>
+                  <p className="text-white/60 mb-4">
+                    by {course.instructor.name}
+                  </p>
+
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-white">{course.price}</span>
-                    <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
-                      Enroll Now
-                    </Button>
+                    <span className="text-2xl font-bold text-white">
+                      {course.course.price}
+                    </span>
+                    <Link href={`/browse?page=1`}>
+                      <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
+                        Enroll Now
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -183,22 +177,130 @@ const HomePage = () => {
       <section className="py-20 px-6 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-rose-500/10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Start Your <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">Learning Journey?</span>
+            Ready to Start Your{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">
+              Learning Journey?
+            </span>
           </h2>
           <p className="text-white/60 text-lg mb-8 max-w-2xl mx-auto">
-            Join thousands of successful students who have transformed their careers through our comprehensive learning platform
+            Join thousands of successful students who have transformed their
+            careers through our comprehensive learning platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3">
-              Start Learning Today
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3">
-              Browse Courses
-            </Button>
+            <Link href={"/courses"}>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3"
+              >
+                Start Learning Today
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+            <Link href={"/browse?page=1"}>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3"
+              >
+                Browse Courses
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
+
+      <footer className="bg-[#0a0a0b] border-t border-white/10 px-6 py-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-white/80">
+          {/* Logo + About */}
+          <div>
+            <h3 className="text-xl font-bold text-white mb-2">LearnHub</h3>
+            <p className="text-sm text-white/60">
+              Empowering learners worldwide through interactive, expert-led
+              education.
+            </p>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-lg font-semibold mb-3">Quick Links</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/dashboard" className="hover:text-white">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/browse" className="hover:text-white">
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="text-lg font-semibold mb-3">Resources</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="#" className="hover:text-white">
+                  FAQs
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Social Links */}
+          <div>
+            <h4 className="text-lg font-semibold mb-3">Stay Connected</h4>
+            <div className="flex space-x-4 text-white/70">
+              <Link
+                href="https://twitter.com"
+                target="_blank"
+                className="hover:text-white"
+              >
+                <FaTwitter className="w-5 h-5" />
+              </Link>
+              <Link
+                href="https://github.com/Divyansh9557"
+                target="_blank"
+                className="hover:text-white"
+              >
+                <FaGithub className="w-5 h-5" />
+              </Link>
+              <Link
+                href="https://www.linkedin.com/in/divyansh-saini-398630354"
+                target="_blank"
+                className="hover:text-white"
+              >
+                <FaLinkedin className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 text-center text-xs text-white/40">
+          © {new Date().getFullYear()} LearnHub. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }

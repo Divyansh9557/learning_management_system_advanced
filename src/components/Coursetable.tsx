@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X, Flag } from "lucide-react";
-import { CourseGetMany } from "@/types/types";
+import { Check, X } from "lucide-react";
+import { adminDashboardCourse, AdminGetMany } from "@/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { useState } from "react";
@@ -19,12 +19,13 @@ import { useState } from "react";
 
 
 interface CourseTableProps {
-  courseData: CourseGetMany | undefined ;
+  courseData?: AdminGetMany | undefined ;
   compact?: boolean;
+  adminCourseData?: adminDashboardCourse
 }
 
 
-export function CourseTable({ courseData, compact = false }: CourseTableProps) {
+export function CourseTable({ adminCourseData,courseData, compact = false }: CourseTableProps) {
 
   const [current,setCurrent]= useState<string | undefined >()
   const trpc= useTRPC()
@@ -58,9 +59,6 @@ export function CourseTable({ courseData, compact = false }: CourseTableProps) {
      rejectCourse({courseId})
   };
 
-  const handleFlag = (courseId: string) => {
-    console.log(`Flagging course ${courseId}`);
-  };
 
   
 
@@ -72,31 +70,81 @@ export function CourseTable({ courseData, compact = false }: CourseTableProps) {
             <TableHead className="text-white/80">Course Title</TableHead>
             <TableHead className="text-white/80">Instructor</TableHead>
             <TableHead className="text-white/80">Status</TableHead>
-            <TableHead className="text-white/80">Students</TableHead>
+            <TableHead className="text-white/80">
+              Price
+            </TableHead>
             {!compact && <TableHead className="text-white/80">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {courseData?.data.map((course) => (
-            <TableRow key={course.id} className="border-white/[0.08] hover:bg-white/[0.02]">
-              <TableCell className="font-medium text-white">{course.title}</TableCell>
+            {
+              adminCourseData ? (<>
+              {adminCourseData?.courseDetails.slice(0,7).map((course) => (
+            <TableRow key={course.courses.id} className="border-white/[0.08] hover:bg-white/[0.02]">
+              <TableCell className="font-medium text-white">{course.courses.title}</TableCell>
               <TableCell className="text-white/70">{course.instructor?.name}</TableCell>
               <TableCell>
                 <Badge 
-                  variant={course.status === "published" ? "default" : "secondary"}
-                  className={course.status === "published" 
+                  variant={course.courses.status === "published" ? "default" : "secondary"}
+                  className={course.courses.status === "published" 
                     ? "bg-green-500/20 text-green-300 border-green-500/30"
                     : "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
                   }
                 >
-                  {course.status}
+                  {course.courses.status}
                 </Badge>
               </TableCell>
-                  <TableCell className="text-white/70">{course.instructor?.name}</TableCell>
+                  <TableCell className="text-white/70">₹{course.courses.price}</TableCell>
+            
+            </TableRow>
+          ))}
+              </>):(<>
+              {courseData?.data.map((course) => (
+            <TableRow key={course.id} className="border-white/[0.08] hover:bg-white/[0.02]">
+              <TableCell className="font-medium text-white">{course.title}</TableCell>
+              <TableCell className="text-white/70">{course.instructor?.name}</TableCell>
+              <TableCell>
+                
+                {
+                  course.status ==="rejected" && (
+                     <Badge 
+                  variant={ "secondary"}
+                  className="bg-red-500/80 text-white-300 border-red-500/50"
+                >
+                  {course.status}
+                </Badge>
+                  )
+                }
+                {
+                  course.status==="published" &&(
+                       <Badge 
+                  variant={ "default" }
+                  className="bg-green-500/20 text-green-300 border-green-500/30" 
+                >
+                  {course.status}
+                </Badge>
+                  )
+                }
+                {
+                  course.status==="pending_approval" &&(
+                    <Badge 
+                      variant={ "secondary"}
+                      className= "bg-yellow-500/20 text-yellow-300 border-white" 
+                    >
+                  {course.status}
+                </Badge>
+                    
+                  )
+                }
+               
+              </TableCell>
+                  <TableCell className="text-white/70">₹{course.price}</TableCell>
               {!compact && (
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button
+                   {
+                     course.status==="published" ? null:(
+                       <Button
                       size="sm"
                       disabled={course.id ===current }
                       variant="outline"
@@ -106,6 +154,8 @@ export function CourseTable({ courseData, compact = false }: CourseTableProps) {
                       <Check className="h-4 w-4" />
                       Approve
                     </Button>
+                     )
+                   }
                    {
                     course.status==="rejected"?null:(
                        <Button
@@ -120,25 +170,14 @@ export function CourseTable({ courseData, compact = false }: CourseTableProps) {
                     </Button>
                     )
                    }
-                    {
-                      course.status==="rejected"?null:(
-                        <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={course.id ===current }
-                      onClick={() => handleFlag(course.id)}
-                      className="bg-orange-500/10 hover:text-white border-orange-500/30 text-orange-300 hover:bg-orange-500/20"
-                    >
-                      <Flag className="h-4 w-4" />
-                      Flag
-                    </Button>
-                      )
-                    }
+                 
                   </div>
                 </TableCell>
               )}
             </TableRow>
           ))}
+              </>)
+            }
         </TableBody>
       </Table>
     </div>

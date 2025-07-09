@@ -1,20 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { BookOpen, Download, Play, Check, Loader } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, Download, Play, Check, Loader, Award } from "lucide-react";
+import {  useState } from "react";
 import type { courseGetOne } from "@/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
+import { authClient } from "@/lib/auth-client";
 
 interface Props {
   data?: courseGetOne;
   handleLectureChange: (n: number) => void;
   active: number;
+  ref:any;
+  onButtonClick:any
 }
 
-export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
+export const CourseTab = ({ data, handleLectureChange, active,onButtonClick,ref }: Props) => {
   const [activeTab, setActiveTab] = useState("content");
-
+  const session = authClient.useSession()
   const tabs = [
     { id: "content", name: "Content", icon: BookOpen },
     { id: "certificate", name: "Certificate", icon: Download },
@@ -43,6 +47,9 @@ export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
   const handleComplete = () => {
     markAsComplete({ lectureId: data?.lectureWithProgress[active].id || "",courseId:data?.course.id || "" });
   };
+
+  
+  
 
   return (
     <div className="bg-[#121212] rounded-xl shadow-lg border border-gray-800">
@@ -133,7 +140,7 @@ export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
         {activeTab === "certificate" && (
 
           data?.progress===100 ?(
-            <div className="flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl p-10 shadow-xl border border-gray-700">
+            <div className="flex flex-col relative items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-xl p-10 shadow-xl border border-gray-700">
     <div className="text-center max-w-md w-full">
       <Download className="w-14 h-14 text-indigo-400 mx-auto mb-6" />
 
@@ -146,7 +153,7 @@ export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
       <div className="bg-[#121212] p-6 rounded-xl border border-gray-700 text-left text-sm text-white space-y-3 shadow-inner">
         <div className="flex justify-between">
           <span className="text-gray-400">Student</span>
-          <span className="font-medium">John Doe</span>
+          <span className="font-medium">{session.data?.user.name}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-400">Course</span>
@@ -169,10 +176,56 @@ export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
       </div>
 
       <button
+      onClick={onButtonClick}
         className="mt-6 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition"
       >
         Download Certificate
       </button>
+       <div ref={ref} className="bg-gray-900 absolute  top-0 left-0 w-[110%] -z-50 rounded-lg p-8 mx-4 shadow-lg">
+              <div className="text-center">
+                {/* Header */}
+                <div className="mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+                    <Award className="w-8 h-8 text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">Certificate of Completion</h2>
+                  <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto" />
+                </div>
+
+                {/* Body */}
+                <div className="mb-8">
+                  <p className="text-gray-400 mb-4">This is to certify that</p>
+                  <h3 className="text-3xl font-bold mb-4">{session.data?.user.name}</h3>
+                  <p className="text-gray-400 mb-2">has successfully completed</p>
+                  <h4 className="text-xl font-semibold text-blue-400 mb-6">
+                    {data.course.title} Course
+                  </h4>
+
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-6 border-t border-gray-700">
+                  <div className="text-left">
+                    <div className="w-32 h-0.5 bg-gray-600 mb-2"></div>
+                    <p className="text-sm text-gray-400">{data.instructor.name}</p>
+                    <p className="text-xs text-gray-500">Instructor</p>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-2">
+                      <span className="text-white font-bold text-lg">L</span>
+                    </div>
+                    <p className="text-xs text-gray-500">LearnHub</p>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="w-32 h-0.5 bg-gray-600 mb-2"></div>
+                    <p className="text-sm text-gray-400">Certificate ID</p>
+                    <p className="text-xs text-gray-500">#LH-2025-{Math.ceil(Math.random()*4)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
     </div>
   </div>
           ):
@@ -190,6 +243,7 @@ export const CourseTab = ({ data, handleLectureChange, active }: Props) => {
           </div>
         )}
       </div>
+
     </div>
   );
 };

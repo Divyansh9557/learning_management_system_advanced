@@ -113,11 +113,15 @@ export const quizzes = pgTable("quizzes", {
 export const enrollments = pgTable("enrollments", {
   id: text("id").primaryKey().$defaultFn(()=> nanoid() ),
   userId: text("user_id").references(() => user.id,{onDelete:"cascade"}),
-  courseId: text("course_id").references(() => courses.id,{onDelete:"cascade"}),
+  courseId: text("course_id").references(() => courses.id,{onDelete:"cascade"}).notNull(),
   progress: decimal("progress").default("0"),
   completed: boolean("completed").default(false),
   certificateUrl: text("certificate_url"),
-  enrolledAt: timestamp("enrolled_at").defaultNow()
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+   updatedAt: timestamp("updated_at").$defaultFn(
+    () =>  new Date()
+  ),
+
 });
 export const payments = pgTable("payments", {
   id: text("id").primaryKey().$defaultFn(()=> nanoid() ),

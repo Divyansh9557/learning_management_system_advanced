@@ -6,7 +6,6 @@ import {
   BookOpen,
   User,
   Search,
-  Download,
   FileText,
   Gauge,
   Menu,
@@ -30,8 +29,6 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { name: "My Courses", path: "/courses", icon: BookOpen },
     { name: "Browse Courses", path: "/browse?page=1", icon: Search },
     { name: "Quizzes", path: "/quizzes", icon: FileText },
-    { name: "Certificates", path: "/certificates", icon: Download },
-    { name: "Profile", path: "/profile/1", icon: User },
   ];
 
   const adminNavItems = [
@@ -64,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     <>
       {/* Toggle Button for Mobile */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-black text-white rounded"
+        className="md:hidden fixed top-2 right-0 z-50 p-2 bg-transparent text-white rounded"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -73,10 +70,10 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Sidebar for Desktop and Mobile */}
       <aside
         className={clsx(
-          "fixed top-0 left-0 z-40 w-64 h-full bg-[#030303]/95 backdrop-blur-sm border-r border-white/[0.08] transform transition-transform duration-300",
+          "fixed top-20 md:top-0 right-0 md:left-0 z-40 w-64 h-screen bg-[#030303]/95 backdrop-blur-sm border-r border-white/[0.08] transform transition-transform duration-300",
           {
             "translate-x-0": isOpen,
-            "-translate-x-full": !isOpen,
+            " translate-x-full md:-translate-x-full": !isOpen,
             "md:translate-x-0 md:static md:block": true, // Always show on md+
           }
         )}
@@ -106,7 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Backdrop for Mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed  inset-0 bg-black/50 z-30 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}

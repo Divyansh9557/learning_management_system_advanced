@@ -12,7 +12,7 @@ export const CoursePagination = ({totalPage,limit=6}:Props) => {
      const [filter,setFilter] = useFilterParams()
   return (
       
-<div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 px-4">
+<div className="mt-8 flex   justify-between items-center gap-4 px-4">
   <Button
 
     variant="outline"

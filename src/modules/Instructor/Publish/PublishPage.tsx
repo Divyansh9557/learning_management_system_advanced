@@ -41,7 +41,7 @@ const PublishPage = () => {
   };
 
 
-  const duration = data.lecture?.reduce((acc,data)=>{
+  const duration = data.lectureWithProgress?.reduce((acc,data)=>{
      if(data.duration){
       return acc + data.duration
      } else {
@@ -102,7 +102,7 @@ const PublishPage = () => {
                 <div className="border-t text-white border-gray-700 pt-4">
                   <h4 className="font-semibold  mb-2">Course Includes:</h4>
                   <ul className="text-sm text-white  space-y-1">
-                    <li>• {data.lecture.length} video lessons ({formatSecondsToTime(duration)} hours total)</li>
+                    <li>• {data.lectureWithProgress.length} video lessons ({formatSecondsToTime(duration)} hours total)</li>
                     <li>• Downloadable resources</li>
                     <li>• Certificate of completion</li>
                     <li>• Lifetime access</li>
@@ -118,7 +118,7 @@ const PublishPage = () => {
                     <span className="text-sm">Course title and description added</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className={`w-4 h-4  ${(data.lecture.length>0 && data.lecture[0].duration && data.lecture[0].title) ?"text-green-400":"text-gray-500" } `} />
+                    <CheckCircle className={`w-4 h-4  ${(data.lectureWithProgress.length>0 && data.lectureWithProgress[0].duration && data.lectureWithProgress[0].title) ?"text-green-400":"text-gray-500" } `} />
                     <span className="text-sm">Course content uploaded</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ const PublishPage = () => {
 
               <div className="flex items-center gap-2">
                 <input 
-                  disabled={!!(data.course.title==='' || data.course?.description==='' || data.lecture?.length===0 || data?.lecture[0]?.duration===0 || data?.lecture[0]?.title==="" && data.course?.price===0)}
+                  disabled={!!(data.course.title==='' || data.course?.description==='' || data.lectureWithProgress?.length===0 || data?.lectureWithProgress[0]?.duration===0 || data?.lectureWithProgress[0]?.title==="" && data.course?.price===0)}
                   type="checkbox" 
                   id="terms"
                   checked={agreed}
@@ -155,7 +155,7 @@ const PublishPage = () => {
           </Button>
           <Button 
             onClick={handlePublish}
-            disabled={ !agreed || data.lecture.length===0 || data.lecture[0]?.duration===0 || isPending }
+            disabled={ !agreed || data.lectureWithProgress.length===0 || data.lectureWithProgress[0]?.duration===0 || isPending }
             className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
             {

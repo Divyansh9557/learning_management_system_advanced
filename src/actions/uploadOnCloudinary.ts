@@ -72,3 +72,23 @@ export async function deleteFromCloudinary(publicId: string) {
     throw err;
   }
 }
+export async function deleteImageFromCloudinary(publicId: string) {
+  try {
+    
+     publicId = publicId.split('/upload/')[1]          
+       .split('/')                      
+       .slice(1)                        
+       .join('/')                      
+       .replace(/\.[^/.]+$/, '');
+    
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image',
+    });
+
+    console.log('Cloudinary delete result:', result);
+    return result;
+  } catch (err) {
+    console.error('Error deleting from Cloudinary:', err);
+    throw err;
+  }
+}
