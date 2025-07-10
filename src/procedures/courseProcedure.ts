@@ -86,7 +86,8 @@ export const CourseProcedure = createTRPCRouter({
               ? ilike(courses.title, `%${input.search}%`)
               : undefined,
             input?.level ? eq(courses.difficulty, input.level) : undefined,
-            input?.category ? eq(courses.category, input.category) : undefined
+            input?.category ? eq(courses.category, input.category) : undefined,
+            eq(courses.status,"published")
           )
         );
 
@@ -152,7 +153,21 @@ export const CourseProcedure = createTRPCRouter({
       .from(courses)
       .where(eq(courses.instructorId, ctx.session.user.id));
 
-    return data;
+      const courseIds= data.map((curr)=> curr.id )
+
+      const enrolledStudent = await db
+        .select()
+        .from(enrollments)
+        .where(inArray(enrollments.courseId, courseIds));
+
+        const purchasedCourses = await db
+          .select()
+          .from(payments)
+          .where(inArray(payments.courseId, courseIds));
+
+          const totalRevenue = purchasedCourses.reduce((acc,curr)=> parseInt(curr.price)+acc ,0 )
+
+    return {data,enrolledStudent:enrolledStudent.length,totalRevenue};
   }),
 
   create: protectedProcedure

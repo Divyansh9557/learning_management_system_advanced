@@ -36,21 +36,21 @@ const InstructorDashboard = () => {
   const metrics = [
     {
       title: "Total Courses",
-      value: courses.length.toString(),
+      value: courses.data.length.toString(),
       icon: Book,
       color: "bg-blue-500",
       description: "Active courses",
     },
     {
       title: "Total Students",
-      value: "156",
+      value:  courses.enrolledStudent || "156",
       icon: Users,
       color: "bg-green-500",
       description: "Enrolled students",
     },
     {
       title: "Monthly Revenue",
-      value: "$2,340",
+      value: "₹ "+courses.totalRevenue || "$2,340",
       icon: Award,
       color: "bg-yellow-500",
       description: "This month",
@@ -122,7 +122,7 @@ const InstructorDashboard = () => {
           ))}
         </div>
 
-        {courses.length === 0 ? (
+        {courses.data.length === 0 ? (
           <div className="text-center py-20 border border-dashed border-gray-700 rounded-xl bg-white/5">
             <h2 className="text-2xl font-semibold mb-3">No courses available</h2>
             <p className="text-gray-400 mb-6">Start by creating your first course.</p>
@@ -134,7 +134,7 @@ const InstructorDashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
+            {courses.data.map((course) => (
               <Card
                 key={course.id}
                 className="bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 transition-colors rounded-xl shadow-md"
