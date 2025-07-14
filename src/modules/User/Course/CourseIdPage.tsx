@@ -106,6 +106,17 @@ const CourseIdPage = () => {
          console.log(err)
        })
    }, [ref])
+
+
+
+   useEffect(() => {
+  const video = videoRef.current;
+  if (video) {
+    video.load();
+    // video.play().catch(() => {}); // handle autoplay policy restrictions
+  }
+}, [active]);
+
   if (isLoading)
     return <div className="text-center py-10 text-white">Loading...</div>;
 
