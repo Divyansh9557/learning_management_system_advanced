@@ -27,7 +27,7 @@ const QuizesPage: React.FC = () => {
   console.log(totalAttempt)
   console.log(data)
   return (
-    <div className="min-h-screen bg-gray-900 p-6 text-white">
+    <div className="min-h-screen  p-6 text-white">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -68,7 +68,7 @@ const QuizesPage: React.FC = () => {
           ].map((stat, i) => (
             <div
               key={i}
-              className="bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-700"
+              className="bg-[#0f0f0f] rounded-xl p-6 shadow-sm border border-gray-700"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -92,7 +92,7 @@ const QuizesPage: React.FC = () => {
           {data.map((quiz) => (
             <div
               key={quiz.id}
-              className={`bg-gray-800 rounded-xl p-6 shadow-sm border hover:shadow-md transition-all `}
+              className={`bg-[#0f0f0f] rounded-xl p-6 shadow-sm border hover:shadow-md transition-all `}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

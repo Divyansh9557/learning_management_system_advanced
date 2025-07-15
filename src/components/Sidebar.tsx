@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   const studentNavItems = [
     { name: "Home", path: "/", icon: Home },
     { name: "Dashboard", path: "/dashboard", icon: BookOpen },
-    { name: "My Courses", path: "/courses", icon: BookOpen },
+    { name: "My Courses", path: "/courses?page=1", icon: BookOpen },
     { name: "Browse Courses", path: "/browse?page=1", icon: Search },
     { name: "Quizzes", path: "/quizzes", icon: FileText },
   ];

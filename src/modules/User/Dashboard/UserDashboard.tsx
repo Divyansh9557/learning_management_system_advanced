@@ -88,6 +88,7 @@ const StudentDashboard: React.FC = () => {
       {data.enrolledCourses.slice(0, 2).map((course, index) => (
         <CourseCard
           key={course.course.id}
+          id={course.course.id}
           category={course.course.category}
           enrollment={course.enrollments}
           instructor={data.courseDetails[index].instructor.name}

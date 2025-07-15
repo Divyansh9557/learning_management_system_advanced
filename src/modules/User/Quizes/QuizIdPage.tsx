@@ -183,7 +183,7 @@ const QuizTaker = () => {
   const question = sampleQuiz.questions[currentQuestion];
 
   return (
-    <div className=" min-h-screen w-full bg-[#030303] overflow-x-hidden">
+    <div className=" min-h-screen w-full  overflow-x-hidden">
       <div className=" z-10 container max-w-4xl mx-auto px-4 py-8">
         
         {/* Header */}

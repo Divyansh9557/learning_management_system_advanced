@@ -2,10 +2,9 @@
 
 import React from 'react'
 import { Skeleton } from "@/components/ui/skeleton"
-import { Clock, Users } from "lucide-react"
 
 const StatCardSkeleton = () => (
-  <div className="bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-700">
+  <div className="bg-slate-900 rounded-xl p-6 shadow-sm border border-gray-700">
     <div className="flex items-center justify-between">
       <div className="space-y-2">
         <Skeleton className="h-4 w-24" />
@@ -17,7 +16,7 @@ const StatCardSkeleton = () => (
 )
 
 const QuizCardSkeleton = () => (
-  <div className="bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-700 space-y-4">
+  <div className="bg-slate-900 rounded-xl p-6 shadow-sm border border-gray-700 space-y-4">
     <div className="flex items-start justify-between">
       <div className="space-y-2 w-full">
         <Skeleton className="h-5 w-3/4" />
@@ -27,9 +26,9 @@ const QuizCardSkeleton = () => (
       <Skeleton className="w-6 h-6 rounded-full" />
     </div>
 
-    <div className="flex items-center justify-between text-sm text-gray-400">
+    <div className="flex items-center justify-between text-sm text-gray-100">
       <div className="flex items-center space-x-2">
-        <Clock className="w-4 h-4 text-gray-600" />
+       
         <Skeleton className="h-4 w-16" />
       </div>
       <Skeleton className="h-4 w-12" />
@@ -38,7 +37,7 @@ const QuizCardSkeleton = () => (
     <div className="flex items-center justify-between">
       <Skeleton className="px-3 py-1 rounded-full h-6 w-16" />
       <div className="flex items-center space-x-2">
-        <Users className="w-3 h-3 text-gray-600" />
+        
         <Skeleton className="h-4 w-8" />
       </div>
     </div>
@@ -49,7 +48,7 @@ const QuizCardSkeleton = () => (
 
 const QuizzesSkeleton: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-900 p-6 text-white">
+    <div className="min-h-screen  p-6 text-white">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 space-y-2">
@@ -66,7 +65,7 @@ const QuizzesSkeleton: React.FC = () => {
 
         {/* Quiz Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
+          {[...Array(3)].map((_, i) => (
             <QuizCardSkeleton key={i} />
           ))}
         </div>
