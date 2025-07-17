@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,6 +22,7 @@ const formSchema = z.object({
 type SignUpFormData = z.infer<typeof formSchema>;
 
 export default function SignUp() {
+  const router = useRouter()
   const [pending, setPending] = useState(false);
 
 
@@ -45,6 +46,7 @@ export default function SignUp() {
         onSuccess: () => {
           setPending(false);
           toast.success("Verify your email ,a mail is send to you given email")
+          router.push("/sign-in")
         },
         onError: (err) => {
           setPending(false);
