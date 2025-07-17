@@ -4,6 +4,7 @@ import { db } from "@/db"; // your drizzle instance
 import * as schema from "@/db/schema"
 import { customSession } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
+import { sendEmail } from "@/mail/email/sendEmail";
 
  
 export const auth = betterAuth({
@@ -13,6 +14,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification:true,
   },
      socialProviders:{
       google: { 
@@ -23,7 +25,12 @@ export const auth = betterAuth({
             clientId: process.env.GITHUB_CLIENT_ID as string, 
             clientSecret: process.env.GITHUB_CLIENT_SECRET as string, 
         }, 
-
+     },
+     emailVerification:{
+          sendVerificationEmail: async({url,user})=>{
+                    await sendEmail(user,url)
+          },
+          sendOnSignUp:true
      },
   user: {
     additionalFields: {

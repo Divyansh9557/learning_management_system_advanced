@@ -11,6 +11,7 @@ import { FaGoogle, FaGithub } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,7 +23,7 @@ type SignUpFormData = z.infer<typeof formSchema>;
 
 export default function SignUp() {
   const [pending, setPending] = useState(false);
-  const router = useRouter();
+
 
   const {
     register,
@@ -43,7 +44,7 @@ export default function SignUp() {
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
+          toast.success("Verify your email ,a mail is send to you given email")
         },
         onError: (err) => {
           setPending(false);
